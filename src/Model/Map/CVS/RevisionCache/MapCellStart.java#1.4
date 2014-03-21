@@ -1,0 +1,38 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model.Map;
+
+
+
+/**
+ * This is a map cell start class.
+ * It inherit map cell.
+ * Set the map cell start with the row and column.
+ * 
+ * @author yukywang
+ */
+public class MapCellStart extends MapCell
+{
+
+    public MapCellStart(int pRow, int pCol, String pDescription, String pImageFile)
+    {
+        _row = pRow;
+        _col = pCol;
+        _imageName = pImageFile;
+        _description = pDescription;
+    }
+
+    public MapCellStart(String pDescription, String pImageFile)
+    {
+        _imageName = pImageFile;
+        _description = pDescription;
+    }
+
+    @Override
+    public boolean canOverlap()
+    {
+        return true;
+    }
+}

@@ -1,0 +1,129 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Controller.Character;
+
+import Model.Dice;
+import Model.OutputConsole;
+
+/**
+ *Class to calculate the ability point related to player editor.
+ * @author khushnuma
+ * @version 1.0.0
+ */
+<<<<<<< AbilityScoreGeneration.java
+public class AbilityScoreGeneration
+{
+
+=======
+public class AbilityScoreGeneration {
+
+    
+    /**
+     * default constructor
+     */
+    public AbilityScoreGeneration() {
+    }
+    
+    
+    
+    
+>>>>>>> 1.5
+    /**
+     * calculates a single ability point value by rolling a d6 dice 4 times and choosing the highest 3 values.
+     * @return sum is the ability points calculated for that ability.
+     * @author khushnuma
+     * @version 1.0.0
+     */
+    private int calculateAbilityPoints()
+    {
+        int sum;
+        int[] list = new int[4];
+        list[0] = Dice.d6Dice();
+        list[1] = Dice.d6Dice();
+        list[2] = Dice.d6Dice();
+        list[3] = Dice.d6Dice();
+<<<<<<< AbilityScoreGeneration.java
+        OutputConsole.GetOutputConsoleInstance().Write("Values generated are: " + list[0] + ", " + list[1] + ", " + list[2] + ", " + list[3]);
+=======
+        //OutputConsole.GetOutputConsoleInstance().Write("Values generated are: "+ list[0]+", "+ list[1]+", "+ list[2]+", "+ list[3]);
+>>>>>>> 1.5
+        //sort list from lowest to highest
+<<<<<<< AbilityScoreGeneration.java
+        for (int i = 1; i < 4; i++)
+        {	// outer for loop begins.
+            for (int j = 0; j < (4 - i); j++)
+            {// inner for loop begins
+                if (list[j] > list[j + 1])
+                {
+                    // swap array elements
+                    int temp = list[j];
+                    list[j] = list[j + 1];
+                    list[j + 1] = temp;
+                }
+            }// inner for loop ends
+        }// outer for loop ends
+        OutputConsole.GetOutputConsoleInstance().Write("Sorted D6 Dice Values are: " + list[0] + ", " + list[1] + ", " + list[2] + ", " + list[3]);
+        sum = list[1] + list[2] + list[3];
+=======
+        for (int i=1; i<4; i++)
+		{	// outer for loop begins.
+			for (int j=0; j<(4 - i); j++)
+			{// inner for loop begins
+				if (list[j] > list[j+1])
+				{
+                                    // swap array elements
+                                    int temp = list[j];
+                                    list[j] = list[j+1];
+                                    list[j+1] = temp;
+                                }
+			}// inner for loop ends
+		}// outer for loop ends
+        //OutputConsole.GetOutputConsoleInstance().Write("Sorted D6 Dice Values are: "+ list[0]+", "+ list[1]+", "+ list[2]+", "+ list[3]);
+        sum = list[1] +list[2] + list[3];
+>>>>>>> 1.5
+        return sum;
+    }//end method calculateAbilityPoints
+
+    /**
+     * Method to generate a complete sorted list of ability points for all 6 abilities.
+     * It uses the method calculateAbilityPoints() to generate each ability score
+     * then sorts them in ascending order for the gui to use.
+     * @return abilityList is the sorted list of generated ability scores.
+     */
+    public int[] createAbilityList()
+    {
+        int[] abilityList = new int[6];
+        for (int i = 0; i < abilityList.length; i++)
+        {
+            abilityList[i] = calculateAbilityPoints();
+<<<<<<< AbilityScoreGeneration.java
+            OutputConsole.GetOutputConsoleInstance().Write("ability value:" + i + " is: " + abilityList[i]);
+=======
+            //OutputConsole.GetOutputConsoleInstance().Write("ability value:"+ i+" is: "+ abilityList[i]);
+>>>>>>> 1.5
+        }
+<<<<<<< AbilityScoreGeneration.java
+        OutputConsole.GetOutputConsoleInstance().Write("Unsorted abilities:" + abilityList[0] + ", " + abilityList[1] + ", " + abilityList[2] + ", " + abilityList[3] + ", " + abilityList[4] + ", " + abilityList[5] + ".");
+=======
+        //OutputConsole.GetOutputConsoleInstance().Write("Unsorted abilities:"+ abilityList[0]+", "+ abilityList[1]+", "+ abilityList[2]+", "+ abilityList[3]+", "+ abilityList[4]+", "+ abilityList[5]+".");
+>>>>>>> 1.5
+        //sort from lowestt to highest
+        for (int i = 1; i < 6; i++)
+        {	// outer for loop begins.
+            for (int j = 0; j < (6 - i); j++)
+            {// inner for loop begins
+                if (abilityList[j] > abilityList[j + 1])
+                {
+                    // swap array elements
+                    int temp = abilityList[j];
+                    abilityList[j] = abilityList[j + 1];
+                    abilityList[j + 1] = temp;
+                }
+            }// inner for loop ends
+        }// outer for loop ends
+        OutputConsole.GetOutputConsoleInstance().Write("Sorted abilities:" + abilityList[0] + ", " + abilityList[1] + ", " + abilityList[2] + ", " + abilityList[3] + ", " + abilityList[4] + ", " + abilityList[5] + ".");
+        return abilityList;
+    }//end method createAbilityList
+}

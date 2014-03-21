@@ -1,0 +1,53 @@
+/**
+ * Single Tone pattern to output messages to the console.
+ * It uses a flag to turn off/on the output.
+ * @author Ben
+ */
+package Model;
+
+public class OutputConsole
+{
+
+    private static OutputConsole _outputConsole = null;
+    private final static Object _synObject = new Object();
+    private boolean _messageFlag = true;
+
+    private OutputConsole()
+    {
+    }
+
+    public static OutputConsole GetOutputConsoleInstance()
+    {
+        synchronized (_synObject)
+        {
+            if (_outputConsole == null)
+            {
+                _outputConsole = new OutputConsole();
+            }
+        }
+        return _outputConsole;
+    }
+
+    public void setMessageFlag(boolean pMessageFlag)
+    {
+        this._messageFlag = pMessageFlag;
+    }
+
+    public void Write(String pMessage)
+    {
+        if (_messageFlag)
+            System.out.println("Just for info " + pMessage);
+    }
+
+    public void WriteException(String pMessage)
+    {
+        if (_messageFlag)
+            System.out.println("Exception!!! :" + pMessage);
+    }
+
+    public void WriteWarning(String pMessage)
+    {
+        if (_messageFlag)
+            System.out.println("Warning!! :" + pMessage);
+    }
+}

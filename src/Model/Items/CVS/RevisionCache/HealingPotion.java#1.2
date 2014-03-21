@@ -1,0 +1,36 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model.Items;
+
+import Model.BodyParts.BodyPart;
+
+/**
+ *
+ * @author Ben
+ */
+public class HealingPotion extends Potion
+{
+    public HealingPotion()
+    {
+        _name = "HealingPotion";
+    }
+
+
+    @Override
+    public boolean validateBodyPart(BodyPart pBodyPart)
+    {
+        //TODO implement logic here
+        return true;
+    }
+    
+    
+
+    @Override
+    public void drinkPotion()
+    {
+        //TODO implement logic here
+    }
+    
+}

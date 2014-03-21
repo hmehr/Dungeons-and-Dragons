@@ -1,0 +1,54 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model;
+
+import Model.BodyParts.BodyPart;
+import Model.Items.Item;
+import Model.Map.MapCell;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author Ben
+ */
+public class Character extends MapCell
+{
+    int _level;
+    int _hitPoints;
+    //Ability scores
+    int _strength;
+    int _dexterity;
+    int _constitution;
+    int _wisdom;
+    int _intelligence;
+    int _charisma;
+    
+    int _modifier;
+    int _damageBonus;
+    String _name;
+    ArrayList<BodyPart> _body;
+    ArrayList<Item> _backPack;
+    
+    int getAttackBonus()
+    {
+        //TODO add logic here;
+        return 0;
+    }
+    void Add()
+    {
+        //TODO add logic here;
+    }
+    void createBodyParts()
+    {
+        //TODO add logic here;
+    }
+    
+    @Override
+    public boolean canOverlap()
+    {
+        return true;
+    }
+    
+}

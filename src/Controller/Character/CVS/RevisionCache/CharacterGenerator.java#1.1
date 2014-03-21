@@ -1,0 +1,41 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Controller.Character;
+
+import View.Character.CharacterGeneratorObserver;
+
+/**
+ *
+ * @author m_niza
+ */
+public class CharacterGenerator implements CharacterGeneratorObservable
+{
+
+    public void notifyObservers()
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void registerObserver(CharacterGeneratorObserver o)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void removeObserver(CharacterGeneratorObserver o)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void generateCharacter()
+    {
+        Model.Character character = new Model.Character();
+    }
+    
+    public int getTotalAbilityScores(){
+        return 0;
+    }
+
+
+}

@@ -1,0 +1,283 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model;
+
+import Model.BodyParts.*;
+import Model.Items.*;
+import Model.Items.Item;
+import Model.Map.MapCell;
+import java.util.ArrayList;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
+import javax.swing.event.ListDataListener;
+
+/**
+ * Character model class.
+ *
+ * @author Hamid
+ */
+public class Character extends MapCell
+{
+    int _level;
+    int _hitPoints;
+    //Ability scores
+    int _strength;
+    int _dexterity;
+    int _constitution;
+    int _wisdom;
+    int _intelligence;
+    int _charisma;
+    
+    int _modifier;
+    int _damageBonus;
+    int _attackBonus;
+    int _healingPotion;
+    String _name;
+    String _avatar;
+    
+    ArmorType _armorType;
+
+    DefaultListModel _inventoryList;
+    DefaultListModel _backpackList;
+    DefaultComboBoxModel _dfc;
+
+    public ArrayList<BodyPart> _bodyArray;
+    ArrayList<Item> _backpackItem;
+    ArrayList<Item> _inventroyItem;
+
+    public Character()
+    {
+        _name = "Default Character";
+        _level = 1;
+        _strength = 8;
+        _dexterity = 8;
+        _constitution = 8;
+        _wisdom = 8;
+        _intelligence = 8;
+        _charisma = 8;
+        _modifier = 1;
+        _damageBonus = 0;
+        _attackBonus = 0;
+        _healingPotion = 20; //it will increase hitpoints by 20
+        _hitPoints = 100;       
+        
+        _bodyArray = new ArrayList<BodyPart>();
+        _dfc = new DefaultComboBoxModel();
+        _inventroyItem = new ArrayList<Item>();
+        _backpackItem = new ArrayList<Item>();
+        _inventoryList = new DefaultListModel();
+        _backpackList = new DefaultListModel();
+    }
+
+    
+    public String getName()
+    {
+        return _name;
+    }
+
+    public String getAvatar()
+    {
+        return _avatar;
+    }
+
+    public void setAvatar(String _avatar)
+    {
+        this._avatar = _avatar;
+    }
+
+    public void setCharisma(int _charisma)
+    {
+        this._charisma = _charisma;
+    }
+
+    public int getCharisma()
+    {
+        return _charisma;
+    }
+
+    public int getConstitution()
+    {
+        return _constitution;
+    }
+
+    public int getDexterity()
+    {
+        return _dexterity;
+    }
+
+    public int getIntelligence()
+    {
+        return _intelligence;
+    }
+
+    public int getStrength()
+    {
+        return _strength;
+    }
+
+    public int getWisdom()
+    {
+        return _wisdom;
+    }
+
+    public int getDamageBonus()
+    {
+        return _damageBonus;
+    }
+
+    public int getAttackBonus()
+    {
+        return _attackBonus;
+    }
+
+    public int getHitPoints()
+    {
+        return _hitPoints;
+    }
+
+    public int getLevel()
+    {
+        return _level;
+    }
+
+    public int getHealingPotion()
+    {
+        return _healingPotion;
+    }
+
+    public void setConstitution(int _constitution)
+    {
+        this._constitution = _constitution;
+    }
+
+    public void setDexterity(int _dexterity)
+    {
+        this._dexterity = _dexterity;
+    }
+
+    public void setIntelligence(int _intelligence)
+    {
+        this._intelligence = _intelligence;
+    }
+
+    public void setName(String _name)
+    {
+        this._name = _name;
+    }
+
+    public void setStrength(int _strength)
+    {
+        this._strength = _strength;
+    }
+
+    public void setWisdom(int _wisdom)
+    {
+        this._wisdom = _wisdom;
+    }
+
+    public void setHitPoints(int _hitPoints)
+    {
+        this._hitPoints = _hitPoints;
+    }
+    
+    public ArrayList<Item> getBackPack()
+    {
+        return _backpackItem;
+    }    
+
+    public void createBodyParts()
+    {
+        //TODO add logic here;
+        UpperBody upper_body = new UpperBody();                
+        RightHand right_hand = new RightHand();
+        LeftHand left_hand = new LeftHand();
+        Head head = new Head();
+        Feet feet = new Feet();
+        Finger finger = new Finger();
+        Waist waist = new Waist();
+
+        _bodyArray.add(head); //0
+        _bodyArray.add(upper_body); //1
+        _bodyArray.add(left_hand); //2
+        _bodyArray.add(right_hand); //3
+        _bodyArray.add(finger); //4
+        _bodyArray.add(waist); //5
+        _bodyArray.add(feet); //6
+                
+        for(int i = 0; i< _bodyArray.size(); i++)
+        {            
+            _dfc.addElement(_bodyArray.get(i).getName());            
+        }                
+    }
+
+    public void createInventoryItems()
+    {
+        Armor armor_heavy = new Armor(_armorType.HEAVY);
+        Armor armor_medium = new Armor(_armorType.MEDIUM);
+        Armor armor_light = new Armor(_armorType.LIGHT);
+        Shield shield = new Shield();
+
+        HealingPotion heal_potion = new HealingPotion();
+
+        LongSword long_sword = new LongSword();
+        LongBow long_bow = new LongBow();
+
+        Belt belt = new Belt();
+        Helmet helmet = new Helmet();
+        Ring ring = new Ring();
+        Boot boot = new Boot();
+
+        long_sword.setIsMelee(true);        
+        long_bow.setIsLongRange(true);
+
+        _inventroyItem.add(armor_heavy);
+        _inventroyItem.add(armor_medium);
+        _inventroyItem.add(armor_light);
+        _inventroyItem.add(shield);
+        _inventroyItem.add(heal_potion);
+        _inventroyItem.add(long_sword);
+        _inventroyItem.add(long_bow);
+        _inventroyItem.add(belt);
+        _inventroyItem.add(helmet);
+        _inventroyItem.add(ring);
+        _inventroyItem.add(boot);
+
+        for(int i = 0; i < _inventroyItem.size(); i++)
+            _inventoryList.addElement(_inventroyItem.get(i).getName());
+    }
+
+    public void addBackpackItems(Item pItem)
+    {
+        _backpackItem.add(pItem);
+        _backpackList.addElement(pItem.getName());
+    }
+
+    public DefaultComboBoxModel getBodyPartsName()
+    {        
+        return _dfc;
+    }
+
+    public ArrayList<Item> getInventroyItem()
+    {
+        return _inventroyItem;
+    }
+
+    public DefaultListModel getInventoryList()
+    {
+        return _inventoryList;
+    }
+
+    public DefaultListModel getBackpackList()
+    {
+        return _backpackList;
+    }    
+
+    @Override
+    public boolean canOverlap()
+    {
+        return true;
+    }    
+}

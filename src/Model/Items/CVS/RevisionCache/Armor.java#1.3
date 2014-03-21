@@ -1,0 +1,82 @@
+/**
+ * Armor is a sub type of class Defense. One of the items a character can be equipped with during the game.
+ * @author Hamid
+ */
+package Model.Items;
+
+import Model.ArmorType;
+import Model.BodyParts.BodyPart;
+import Model.OutputConsole;
+
+public class Armor extends Defense
+{
+
+    private ArmorType _armorType;
+    /**
+     * Constructor method for Armor.
+     * @param pName Name of the Armor
+     * @param pFileName Name of the image file name used for it
+     * @Author Hamid
+     */
+    public Armor(String pName, String pFileName)
+    {
+        _fileName = pFileName;
+        _name = pName;
+        OutputConsole.GetOutputConsoleInstance().Write("An Armor was just created.");
+    }
+
+    /**
+     * Constructor method for Armor.
+     * 
+     * @param _pArmorType 
+     * @Author Fahim
+     */
+    public Armor(ArmorType _pArmorType)
+    {
+        if(_pArmorType.equals(_armorType.HEAVY))
+            _name = "ArmorHeavy";
+        if(_pArmorType.equals(_armorType.MEDIUM))
+            _name = "ArmorMedium";
+        if(_pArmorType.equals(_armorType.LIGHT))
+            _name = "ArmorLight";
+    }
+
+    /**
+     * Get Method for _armorType
+     * 
+     * @return _armorType
+     * @Author Fahim
+     */
+    public ArmorType getArmorType()
+    {
+        return _armorType;
+    }
+    
+    /**
+     * Set method for _armorType
+     * 
+     * @param _armorType To be set.
+     * @Author Fahim
+     */
+    public void setArmorType(ArmorType _armorType)
+    {
+        this._armorType = _armorType;
+    }
+    
+    
+
+    /**
+     * Validates the body part with the corresponding item
+     * 
+     * @param pBodyPart The body part to be validated.
+     * @return True if the body part is validated.
+     * @Author Fahim
+     */
+    @Override
+    public boolean validateBodyPart(BodyPart pBodyPart)
+    {
+        //TODO put logic here        
+        return true;
+    }
+}
+

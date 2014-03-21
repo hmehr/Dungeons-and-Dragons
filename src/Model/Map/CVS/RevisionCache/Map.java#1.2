@@ -1,0 +1,150 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model.Map;
+
+import Model.Map.MapMessage.MapDeleteMessage;
+import java.io.Serializable;
+import java.util.Observable;
+
+/**
+ *
+ * @author eric
+ */
+public class Map extends Observable implements Serializable
+{
+
+    private MapCell[][] m_Matrix = null;
+    private int m_NumberElements = 0;
+    private int m_Rows = 2;
+    private int m_Cols = 2;
+    private boolean m_hasStart = false;
+    private boolean m_hasEnd = false;
+
+    public Map(int pRows, int pCols)
+    {
+        m_Rows = pRows;
+        m_Cols = pCols;
+        m_Matrix = new MapCell[pRows][pCols];
+        for (int row = 0; row < pRows; row++)
+        {
+            for (int col = 0; col < pCols; col++)
+            {
+                m_Matrix[row][col] = null;
+            }
+        }
+        //this.notifyObservers();
+    }
+
+    public int getMapRows()
+    {
+        return m_Rows;
+    }
+
+    public int getMapCols()
+    {
+        return m_Cols;
+    }
+
+    public MapCell getMapElement(int pRow, int pCol)
+    {
+        MapCell ret = null;
+        if ((pRow >= 0 && pRow < m_Rows) || (pCol >= 0 && pCol < m_Cols))
+        {
+            ret = m_Matrix[pRow][pCol];
+        }
+        return ret;
+    }
+
+    public boolean addMapElement(MapCell pMapElement)
+    {
+        boolean ret = false;
+        int row = pMapElement.GetRow();
+        int col = pMapElement.GetCol();
+        if ((row >= 0 && row < m_Rows) || (col >= 0 && col < m_Cols))
+        {
+            if (m_Matrix[row][col] == null)
+            {
+                if (pMapElement instanceof MapCellStart)
+                {
+                    if (m_hasStart == false)
+                    {
+                        m_hasStart = true;
+                    } else
+                    {
+                        return false;
+                    }
+                }
+                if (pMapElement instanceof MapCellEnd)
+                {
+                    if (m_hasEnd == false)
+                    {
+                        m_hasEnd = true;
+                    } else
+                    {
+                        return false;
+                    }
+                }
+                m_Matrix[row][col] = pMapElement;
+                m_NumberElements += 1;
+                ret = true;
+                this.setChanged();
+                this.notifyObservers(new MapMessage(pMapElement));
+            }
+        }
+        return ret;
+    }
+
+    public boolean removeMapElement(int pRow, int pCol)
+    {
+        boolean ret = false;
+        if ((pRow >= 0 && pRow < m_Rows) || (pCol >= 0 && pCol < m_Cols))
+        {
+            if (m_Matrix[pRow][pCol] != null)
+            {
+                if (!(m_Matrix[pRow][pCol] instanceof MapCellEnd || m_Matrix[pRow][pCol] instanceof MapCellStart))
+                {
+                    m_NumberElements += -1;
+                    m_Matrix[pRow][pCol] = null;
+                    ret = true;
+                    this.setChanged();
+                    this.notifyObservers(new MapMessage(pRow, pCol));
+                }
+            }
+        }
+        return ret;
+    }
+
+    public boolean moveMapElement(int pSrcRow, int pSrcCol, int pDestRow, int pDestCol)
+    {
+        boolean ret = false;
+        if ((pDestRow >= 0 && pDestRow < m_Rows) || (pDestCol >= 0 && pDestCol < m_Cols))
+        {
+            if (m_Matrix[pSrcRow][pSrcCol] != null && m_Matrix[pDestRow][pDestCol] == null)
+            {
+                m_Matrix[pDestRow][pDestCol] = m_Matrix[pSrcRow][pSrcCol];
+                m_Matrix[pSrcRow][pSrcCol] = null;
+                ret = true;
+                this.setChanged();
+                this.notifyObservers(new MapMessage(pSrcRow, pSrcCol, pDestRow, pDestCol));
+            }
+        }
+        return ret;
+    }
+
+    public boolean validateMap(StringBuffer pMsg)
+    {
+        boolean ret = true;
+        if (!m_hasStart)
+        {
+            ret = false;
+            pMsg.append("Miss Start Point");
+        } else if (!m_hasEnd)
+        {
+            ret = false;
+            pMsg.append("Miss End Point");
+        }
+        return ret;
+    }
+}

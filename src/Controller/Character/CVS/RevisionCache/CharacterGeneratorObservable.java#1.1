@@ -1,0 +1,20 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package Controller.Character;
+
+import View.Character.CharacterGeneratorObserver;
+
+/**
+ *
+ * @author m_niza
+ */
+public interface CharacterGeneratorObservable {
+
+    void registerObserver(CharacterGeneratorObserver o);
+    void removeObserver(CharacterGeneratorObserver o);
+    void notifyObservers();
+
+}

@@ -1,0 +1,36 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package View.Character;
+
+/**
+ *
+ * @author m_niza
+ */
+import Model.Character;
+public class MainCharacterGame
+{
+
+    /**
+     * @param args the command line arguments
+     */
+    //Character ch;;
+    public static void main(String[] args)
+    {
+        //Character ch = new Character();//let's say I want to pass that to the CharacterGame class
+        //CharacterGame  cjf = new CharacterGame(ch);
+        //cjf.createEditor();
+        final Character ch = new Character();
+
+
+        java.awt.EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                new CharacterGame(ch).setVisible(true);
+            }
+        });
+        
+    }
+}

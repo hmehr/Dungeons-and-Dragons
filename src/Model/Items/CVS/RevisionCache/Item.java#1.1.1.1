@@ -1,0 +1,42 @@
+/**
+ * This is a super type class to all items a character can put on during the game.
+ * @author Hamid
+ */
+package Model.Items;
+
+import Model.BodyParts.BodyPart;
+
+
+public abstract class Item
+{
+
+    protected String _name;
+    protected String _fileName;
+
+    public String getFileName()
+    {
+        return _fileName;
+    }
+
+    public String getName()
+    {
+        return _name;
+    }
+
+    public void setFileName(String _fileName)
+    {
+        this._fileName = _fileName;
+    }
+
+    public void setName(String _name)
+    {
+        this._name = _name;
+    }
+
+    /**
+     * This method validate the item and make sure that it matches with the respective body part.
+     * @param item
+     * @return 
+     */
+    public abstract boolean validateBodyPart(BodyPart pBodyPart);
+}

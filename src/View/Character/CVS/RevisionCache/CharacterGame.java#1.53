@@ -1,0 +1,1927 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package View.Character;
+
+import Controller.Character.FromTransferHandler;
+import Controller.Character.ToTransferHandler;
+import Model.ArmorType;
+import Model.ShieldType;
+import Model.Character;
+import Model.Items.Armor;
+import Model.Items.Belt;
+import Model.Items.Boot;
+import Model.Items.HealingPotion;
+import Model.Items.Helmet;
+import Model.Items.Item;
+import Model.Items.LongBow;
+import Model.Items.LongSword;
+import Model.Items.Ring;
+import Model.Items.Shield;
+import Model.OutputConsole;
+import javax.swing.DefaultListModel;
+import javax.swing.DropMode;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JToggleButton;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
+
+/**
+ * This class is for view the details of the player in run time and also to
+ * modify characters several properties.
+ * <p>
+ * This is the run time editor for character.
+ * @author m_niza
+ * @since 1.0.0
+ * @version 1.0.0
+ * Class modified for build 2 change shield types, armor types, add ability scores, modifiers,
+ * values for armor class, base attack bonus and range and melee attack bonus etc.
+ * @version 1.2.0
+ * @author khushnuma
+  */
+public class CharacterGame extends javax.swing.JFrame
+{
+    Character _character;
+    DefaultListModel _modelInventory;
+    DefaultListModel _modelBackpack;
+    ArmorType _armorType;
+    ShieldType _shieldType;
+
+    /**
+     * The constructor will view and modify the character object.
+     * @param pCharacter It takes the reference of the character object
+     */
+    public CharacterGame(Character pCharacter)
+    {
+        initComponents();
+
+        _character = new Character();
+        this._character = pCharacter;
+
+        //Initializing the components with the properties from the referenced
+        jLabelCharacterName.setText(_character.getName() + " (Level-" +
+                Integer.toString(_character.getLevel()) + ")");
+        //added by khushnuma
+        //jLabelCharacterType.setText("Bully, Numble or Tank");
+        jLabelCharacterType.setText(_character.getCharacterType().toString());//bully nimble or tank
+
+        jLabelStrength.setText(Integer.toString(_character.getStrength()));
+        jLabelDexterity.setText(Integer.toString(_character.getDexterity()));
+        jLabelConstitution.setText(Integer.toString(_character.getConstitution()));
+        jLabelWisdom.setText(Integer.toString(_character.getWisdom()));
+        jLabelIntelligence.setText(Integer.toString(_character.getIntelligence()));
+        jLabelCharisma.setText(Integer.toString(_character.getCharisma()));
+        
+        //added by khushnuma
+//        jLabelStrengthModifier.setText(Integer.toString(_character.getStrengthModifier()));
+//        jLabelDexterityModifier.setText(Integer.toString(_character.calculateModifier(_character.getDexterity())));
+//        jLabelConstitutionModifier.setText(Integer.toString(_character.calculateModifier(_character.getConstitution())));
+//        jLabelWisdomModifier.setText(Integer.toString(_character.calculateModifier(_character.getWisdom())));
+//        jLabelIntelligenceModifier.setText(Integer.toString(_character.calculateModifier(_character.getIntelligence())));
+//        jLabelCharismaModifier.setText(Integer.toString(_character.calculateModifier(_character.getCharisma())));
+
+        jLabelStrengthModifier.setText(Integer.toString(_character.getStrengthModifier()));
+        jLabelDexterityModifier.setText(Integer.toString(_character.getDexterityModifier()));
+        jLabelConstitutionModifier.setText(Integer.toString(_character.getConstitutionModifier()));
+        jLabelWisdomModifier.setText(Integer.toString(_character.getWisdomModifier()));
+        jLabelIntelligenceModifier.setText(Integer.toString(_character.getIntelligenceModifier()));
+        jLabelCharismaModifier.setText(Integer.toString(_character.getCharismaModifier()));
+
+
+        //modifed all bonus values by khush
+        jLabelBaseAttackBonusValue.setText(Integer.toString(_character.getBaseAttackBonus()));//changed by khush
+        jLabelRangeAttackBonusValue.setText(Integer.toString(_character.getRangeAttackBonus()));//changed by khush
+        jLabelMeleeAttackBonusValue.setText(Integer.toString(_character.getMeleeAttackBonus()));//added by khush
+        jLabelAttackPerRoundValue.setText(Integer.toString(_character.getAttackPerRound()));//added by khush
+
+        //added by khush
+        jLabelShieldModifier.setText(Integer.toString(_character.getShieldModifier()));//added by khush
+        jLabelArmorModifier.setText(Integer.toString(_character.getArmorModifier()));//added by khush
+        jLabelArmorClass.setText(Integer.toString(_character.getArmorClass()));//added by khush
+
+        //added by khush
+        jLabelHitPoints.setText(Integer.toString(_character.getHitPoints()));//added by khush
+        jLabelMaxHitPoints.setText(Integer.toString(_character.getMaxHitPoints()));//added by khush
+        //jProgressHitPoints.setValue(_character.getHitPoints());//removed by khush
+        //jProgressHitPoints.setStringPainted(true);//remove by khush
+
+        //creating inventory items and body parts
+        //_character.createInventoryItems();
+        //_character.createBodyParts();
+
+        //Populating list boxes (inventory & backpack) and enable transfer handler.
+        _modelBackpack = new DefaultListModel();
+        _modelInventory = new DefaultListModel();//new
+        //_modelInventory = _character.getInventoryList();
+        
+        for(int i=0; i<_character.getInventroyItem().size(); i++)//new
+            _modelInventory.addElement(_character.getInventroyItem().get(i).getName());//new
+
+        jListInventory.setModel(_modelInventory);
+        
+        //JList jl = new JList();
+        //jl.setModel((ListModel)_character.getInventroyItem());
+
+        jListInventory.setTransferHandler(new FromTransferHandler(jListInventory, _modelInventory));
+        jListInventory.setDragEnabled(true);
+        jListInventory.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        jListBackpack.setModel(_modelBackpack);
+        jListBackpack.setTransferHandler(new ToTransferHandler(TransferHandler.COPY));
+        jListBackpack.setDropMode(DropMode.INSERT);
+
+        //Creating images dynamically on the JPanel component of the form.
+        ImagePanel panel = new ImagePanel(new ImageIcon("src/View/Resources/GameCharacter.png").getImage());
+        jPanelCharacterImage.add(panel);
+        refeshWornItems();
+
+    }
+    
+    /**
+     * This method controls the state of the four armor buttons. When one is pressed,
+     * others toggled and become not selected.
+     * Method modified for build 2 to add more armor types and move shield into new section
+     * @author khushnuma
+     * @version 1.2.0
+     * @param pToggleButton It is the reference of the button, which is pressed.
+     */
+    private void armorBtnActvator(JToggleButton pToggleButton)
+    {
+        if (pToggleButton != jToggleBtnPadded)
+        {
+            jToggleBtnPadded.setEnabled(false);
+        }
+        if (pToggleButton != jToggleBtnLeather)
+        {
+            jToggleBtnLeather.setEnabled(false);
+        }
+        if (pToggleButton != jToggleBtnStuddedLeather)
+        {
+            jToggleBtnStuddedLeather.setEnabled(false);
+        }        
+        if (pToggleButton != jToggleBtnFullPlate)
+        {
+            jToggleBtnFullPlate.setEnabled(false);
+        }
+        if(pToggleButton != jToggleBtnChainShirt){
+            jToggleBtnChainShirt.setEnabled(false);
+        }
+        if(pToggleButton != jToggleBtnBreastPlate){
+            jToggleBtnBreastPlate.setEnabled(false);
+        }
+        if(pToggleButton != jToggleBtnBandedMail){
+            jToggleBtnBandedMail.setEnabled(false);
+        }
+        if(pToggleButton != jToggleBtnHalfPlate){
+            jToggleBtnHalfPlate.setEnabled(false);
+        }
+    }
+
+    /**
+     * This method controls the state of the four armor buttons. When one is unselected,
+     * others toggled and become selected.
+     * @param pToggleButton It is the reference of the button, which is pressed.
+     * Method modified for build 2 to add armor types
+     * @author khushnuma
+     * @version 1.2.0
+     */
+    private void armorBtnDeactvator(JToggleButton pToggleButton)
+    {
+
+        if (pToggleButton != jToggleBtnPadded)
+        {
+            jToggleBtnPadded.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnLeather)
+        {
+            jToggleBtnLeather.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnStuddedLeather)
+        {
+            jToggleBtnStuddedLeather.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnFullPlate)
+        {
+            jToggleBtnFullPlate.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnHalfPlate)
+        {
+            jToggleBtnHalfPlate.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnBandedMail)
+        {
+            jToggleBtnBandedMail.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnBreastPlate)
+        {
+            jToggleBtnBreastPlate.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnChainShirt)
+        {
+            jToggleBtnChainShirt.setEnabled(true);
+        }
+    }
+
+    /**
+     * This method uses to wear/arm or take-off/unarm an equipment from player.
+     * It updates the inventory and backpack according to the task.
+     * @param pItem takes the reference of the item which will be worn.
+     * @param pToggle references of the button, for which the event has occurred.
+     * @param pBodyIndex Index number of that particular body part in the list.
+     * method updated for build 2 to handle changing armor class variables..
+     * @khushnuma
+     * @version 1.2.0
+     */
+    private void wearItemsHandler(Item pItem, JToggleButton pToggle, int pBodyIndex)
+    {
+        if (pToggle.isSelected())
+        {// to arm an item
+            
+            //first check that backpack is not null
+            if(_character.getBackPack().isEmpty()){
+                JOptionPane.showMessageDialog(null, "Backpack is empty. Please update!!", "Dungeon & Dragon", 1);
+                pToggle.setSelected(false);
+                return;
+            }
+
+            try
+            {
+                //It checks and matches an Item requested to wear
+                for(int i=0; i<_character.getBackPack().size(); i++)
+                {
+                    if(_character.getBackPack().get(i).getName().equalsIgnoreCase(pItem.getName())
+                            && jListBackpack.getSelectedValue().toString().equalsIgnoreCase(pItem.getName()))
+                    {
+                        //jListBackpack.clearSelection();
+                        //wear an item and remove from backpack
+                        _character._bodyArray.get(pBodyIndex).wearItem(_character.getBackPack().get(i));
+                        _character.wearItem(_character.getBackPack().get(i));
+                        _character.removeBackpackItems(_character.getBackPack().get(i), true);
+                        this.refreshAllLabels();
+                        break;
+                    }//end if loop for item available in backpack
+                    //If item not available in backpack, show message and toggle the buttons
+                    if(i == _character.getBackPack().size()-1 || jListBackpack.isSelectionEmpty())
+                    {
+                        JOptionPane.showMessageDialog(null, pItem.getName() + " is not available or not selected.", "Dungeon & Dragon", 1);
+                        pToggle.setSelected(false);
+                        break;
+                    }//end if loop for item not available in backpack
+                }//end for loop for wearing item  
+            }
+            catch(Exception ex)
+            {
+                System.out.println("Selected value: " + ex.getMessage());
+            }
+
+        }//end if to arm player
+        
+        else//disarm player
+        {
+            //if disarm an item, update the backpack accordingly.
+            if(_character._bodyArray.get(pBodyIndex).isEquiped())
+            {
+                _character.addBackpackItems(_character._bodyArray.get(pBodyIndex).getItem(),true);
+                _character._bodyArray.get(pBodyIndex).takeOffItem(_character._bodyArray.get(pBodyIndex).getItem());
+                _character.removeItem(pItem);
+                this.refreshAllLabels();
+            }//end if to disarm item
+        }//end else to disarm
+    }//end method
+
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanelLoadBackPack = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jListInventory = new javax.swing.JList();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jListBackpack = new javax.swing.JList();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        jButtonUpdate = new javax.swing.JButton();
+        jPanelCharacterImage = new javax.swing.JPanel();
+        jPanelArmor = new javax.swing.JPanel();
+        jToggleBtnPadded = new javax.swing.JToggleButton();
+        jToggleBtnLeather = new javax.swing.JToggleButton();
+        jToggleBtnStuddedLeather = new javax.swing.JToggleButton();
+        jToggleBtnFullPlate = new javax.swing.JToggleButton();
+        jToggleBtnChainShirt = new javax.swing.JToggleButton();
+        jToggleBtnBreastPlate = new javax.swing.JToggleButton();
+        jToggleBtnBandedMail = new javax.swing.JToggleButton();
+        jToggleBtnHalfPlate = new javax.swing.JToggleButton();
+        jPanelWeapons = new javax.swing.JPanel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jToggleBtnSword = new javax.swing.JToggleButton();
+        jToggleBtnBow = new javax.swing.JToggleButton();
+        jPanelMiscellaneousItem = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jToggleBtnHelmet = new javax.swing.JToggleButton();
+        jToggleBtnBelt = new javax.swing.JToggleButton();
+        jToggleBtnRing = new javax.swing.JToggleButton();
+        jToggleBtnBoot = new javax.swing.JToggleButton();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jButtonSave = new javax.swing.JButton();
+        jPanelHitPoints = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jButtonPotionConsume = new javax.swing.JButton();
+        jLabelHitPoints = new javax.swing.JLabel();
+        jLabelMaxHitPointName = new javax.swing.JLabel();
+        jLabelMaxHitPoints = new javax.swing.JLabel();
+        jPanelAbiltyScores = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabelStrength = new javax.swing.JLabel();
+        jLabelDexterity = new javax.swing.JLabel();
+        jLabelConstitution = new javax.swing.JLabel();
+        jLabelWisdom = new javax.swing.JLabel();
+        jLabelIntelligence = new javax.swing.JLabel();
+        jLabelCharisma = new javax.swing.JLabel();
+        jLabelStrengthModifier = new javax.swing.JLabel();
+        jLabelDexterityModifier = new javax.swing.JLabel();
+        jLabelConstitutionModifier = new javax.swing.JLabel();
+        jLabelWisdomModifier = new javax.swing.JLabel();
+        jLabelIntelligenceModifier = new javax.swing.JLabel();
+        jLabelCharismaModifier = new javax.swing.JLabel();
+        jLabelCharacterName = new javax.swing.JLabel();
+        jPanelAttackBonus = new javax.swing.JPanel();
+        jLabelBaseAttackBonus = new javax.swing.JLabel();
+        jLabelRangeAttackBonus = new javax.swing.JLabel();
+        jLabelRangeAttackBonusValue = new javax.swing.JLabel();
+        jLabelBaseAttackBonusValue = new javax.swing.JLabel();
+        jLabelMeleeAttackBonus = new javax.swing.JLabel();
+        jLabelMeleeAttackBonusValue = new javax.swing.JLabel();
+        jLabelAttackPerRound = new javax.swing.JLabel();
+        jLabelAttackPerRoundValue = new javax.swing.JLabel();
+        jLabelCharacterType = new javax.swing.JLabel();
+        jPanelShields = new javax.swing.JPanel();
+        jToggleBtnBuckler = new javax.swing.JToggleButton();
+        jToggleBtnHeavyShield = new javax.swing.JToggleButton();
+        jToggleBtnTowerShield = new javax.swing.JToggleButton();
+        jPanelArmorClass = new javax.swing.JPanel();
+        jLabelShieldModifierName = new javax.swing.JLabel();
+        jLabelArmorModifierName = new javax.swing.JLabel();
+        jLabelArmorClassName = new javax.swing.JLabel();
+        jLabelShieldModifier = new javax.swing.JLabel();
+        jLabelArmorModifier = new javax.swing.JLabel();
+        jLabelArmorClass = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabelMagicValue = new javax.swing.JLabel();
+        jLabelModifierClass = new javax.swing.JLabel();
+
+        setTitle("Player Details"); // NOI18N
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setResizable(false);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanelLoadBackPack.setBorder(javax.swing.BorderFactory.createTitledBorder("Load Backpack"));
+
+        jScrollPane1.setViewportView(jListInventory);
+
+        jListBackpack.setDragEnabled(true);
+        jListBackpack.setDropMode(javax.swing.DropMode.INSERT);
+        jListBackpack.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jListBackpackMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(jListBackpack);
+
+        jLabel19.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel19.setText("Inventory Items");
+
+        jLabel20.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel20.setText("Load Backpack");
+
+        jButtonUpdate.setText("Update Backpack");
+        jButtonUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonUpdateActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanelLoadBackPackLayout = new javax.swing.GroupLayout(jPanelLoadBackPack);
+        jPanelLoadBackPack.setLayout(jPanelLoadBackPackLayout);
+        jPanelLoadBackPackLayout.setHorizontalGroup(
+            jPanelLoadBackPackLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelLoadBackPackLayout.createSequentialGroup()
+                .addGroup(jPanelLoadBackPackLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelLoadBackPackLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanelLoadBackPackLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel19)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanelLoadBackPackLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelLoadBackPackLayout.createSequentialGroup()
+                                .addGap(9, 9, 9)
+                                .addComponent(jLabel20)
+                                .addGap(21, 21, 21))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelLoadBackPackLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelLoadBackPackLayout.createSequentialGroup()
+                        .addGap(154, 154, 154)
+                        .addComponent(jButtonUpdate, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+
+        jPanelLoadBackPackLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel19, jLabel20});
+
+        jPanelLoadBackPackLayout.setVerticalGroup(
+            jPanelLoadBackPackLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelLoadBackPackLayout.createSequentialGroup()
+                .addGroup(jPanelLoadBackPackLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel19)
+                    .addComponent(jLabel20))
+                .addGap(8, 8, 8)
+                .addGroup(jPanelLoadBackPackLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonUpdate)
+                .addGap(17, 17, 17))
+        );
+
+        getContentPane().add(jPanelLoadBackPack, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 11, -1, 420));
+
+        jPanelCharacterImage.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+
+        javax.swing.GroupLayout jPanelCharacterImageLayout = new javax.swing.GroupLayout(jPanelCharacterImage);
+        jPanelCharacterImage.setLayout(jPanelCharacterImageLayout);
+        jPanelCharacterImageLayout.setHorizontalGroup(
+            jPanelCharacterImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 268, Short.MAX_VALUE)
+        );
+        jPanelCharacterImageLayout.setVerticalGroup(
+            jPanelCharacterImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 438, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(jPanelCharacterImage, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 70, 280, 450));
+
+        jPanelArmor.setBorder(javax.swing.BorderFactory.createTitledBorder("Defence/Armor"));
+
+        jToggleBtnPadded.setText("Padded");
+        jToggleBtnPadded.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnPaddedActionPerformed(evt);
+            }
+        });
+        jToggleBtnPadded.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jToggleBtnPaddedKeyPressed(evt);
+            }
+        });
+
+        jToggleBtnLeather.setText("Leather");
+        jToggleBtnLeather.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnLeatherActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnStuddedLeather.setText("Studded Leather");
+        jToggleBtnStuddedLeather.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnStuddedLeatherActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnFullPlate.setText("Full Plate");
+        jToggleBtnFullPlate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnFullPlateActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnChainShirt.setText("Chain Shirt");
+        jToggleBtnChainShirt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnChainShirtActionPerformed(evt);
+            }
+        });
+        jToggleBtnChainShirt.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jToggleBtnChainShirtKeyPressed(evt);
+            }
+        });
+
+        jToggleBtnBreastPlate.setText("Breast Plate");
+        jToggleBtnBreastPlate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnBreastPlateActionPerformed(evt);
+            }
+        });
+        jToggleBtnBreastPlate.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jToggleBtnBreastPlateKeyPressed(evt);
+            }
+        });
+
+        jToggleBtnBandedMail.setText("Banded Mail");
+        jToggleBtnBandedMail.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnBandedMailActionPerformed(evt);
+            }
+        });
+        jToggleBtnBandedMail.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jToggleBtnBandedMailKeyPressed(evt);
+            }
+        });
+
+        jToggleBtnHalfPlate.setText("Half Plate");
+        jToggleBtnHalfPlate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnHalfPlateActionPerformed(evt);
+            }
+        });
+        jToggleBtnHalfPlate.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jToggleBtnHalfPlateKeyPressed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanelArmorLayout = new javax.swing.GroupLayout(jPanelArmor);
+        jPanelArmor.setLayout(jPanelArmorLayout);
+        jPanelArmorLayout.setHorizontalGroup(
+            jPanelArmorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelArmorLayout.createSequentialGroup()
+                .addGap(40, 40, 40)
+                .addGroup(jPanelArmorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jToggleBtnChainShirt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToggleBtnBreastPlate))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelArmorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jToggleBtnHalfPlate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToggleBtnBandedMail))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelArmorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jToggleBtnPadded, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToggleBtnStuddedLeather, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelArmorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jToggleBtnLeather)
+                    .addComponent(jToggleBtnFullPlate))
+                .addContainerGap(50, Short.MAX_VALUE))
+        );
+
+        jPanelArmorLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jToggleBtnFullPlate, jToggleBtnLeather});
+
+        jPanelArmorLayout.setVerticalGroup(
+            jPanelArmorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelArmorLayout.createSequentialGroup()
+                .addGroup(jPanelArmorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jToggleBtnLeather)
+                    .addComponent(jToggleBtnChainShirt)
+                    .addComponent(jToggleBtnHalfPlate)
+                    .addComponent(jToggleBtnPadded))
+                .addGap(18, 18, 18)
+                .addGroup(jPanelArmorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jToggleBtnFullPlate)
+                    .addComponent(jToggleBtnBreastPlate)
+                    .addComponent(jToggleBtnBandedMail)
+                    .addComponent(jToggleBtnStuddedLeather))
+                .addContainerGap(13, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanelArmor, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 20, -1, -1));
+
+        jPanelWeapons.setBorder(javax.swing.BorderFactory.createTitledBorder("Weapons"));
+
+        jLabel7.setText("Long Sword: ");
+
+        jLabel8.setText("Long Bow: ");
+
+        jToggleBtnSword.setText("LongSword");
+        jToggleBtnSword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnSwordActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnBow.setText("Long Bow");
+        jToggleBtnBow.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnBowActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanelWeaponsLayout = new javax.swing.GroupLayout(jPanelWeapons);
+        jPanelWeapons.setLayout(jPanelWeaponsLayout);
+        jPanelWeaponsLayout.setHorizontalGroup(
+            jPanelWeaponsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelWeaponsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelWeaponsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel8))
+                .addGap(28, 28, 28)
+                .addGroup(jPanelWeaponsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jToggleBtnBow)
+                    .addComponent(jToggleBtnSword))
+                .addContainerGap(32, Short.MAX_VALUE))
+        );
+
+        jPanelWeaponsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jToggleBtnBow, jToggleBtnSword});
+
+        jPanelWeaponsLayout.setVerticalGroup(
+            jPanelWeaponsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelWeaponsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelWeaponsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(jToggleBtnSword))
+                .addGap(20, 20, 20)
+                .addGroup(jPanelWeaponsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8)
+                    .addComponent(jToggleBtnBow))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanelWeapons, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 150, 230, -1));
+
+        jPanelMiscellaneousItem.setBorder(javax.swing.BorderFactory.createTitledBorder("Miscellaneous"));
+
+        jLabel6.setText("Helmet: ");
+
+        jToggleBtnHelmet.setText("Activate");
+        jToggleBtnHelmet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnHelmetActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnBelt.setText("Activate");
+        jToggleBtnBelt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnBeltActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnRing.setText("Activate");
+        jToggleBtnRing.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnRingActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnBoot.setText("Activate");
+        jToggleBtnBoot.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnBootActionPerformed(evt);
+            }
+        });
+
+        jLabel9.setText("Belt: ");
+
+        jLabel10.setText("Ring: ");
+
+        jLabel11.setText("Boot: ");
+
+        javax.swing.GroupLayout jPanelMiscellaneousItemLayout = new javax.swing.GroupLayout(jPanelMiscellaneousItem);
+        jPanelMiscellaneousItem.setLayout(jPanelMiscellaneousItemLayout);
+        jPanelMiscellaneousItemLayout.setHorizontalGroup(
+            jPanelMiscellaneousItemLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelMiscellaneousItemLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelMiscellaneousItemLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel10))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
+                .addGroup(jPanelMiscellaneousItemLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jToggleBtnRing)
+                    .addComponent(jToggleBtnHelmet)
+                    .addComponent(jToggleBtnBelt)
+                    .addComponent(jToggleBtnBoot))
+                .addGap(42, 42, 42))
+        );
+
+        jPanelMiscellaneousItemLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel10, jLabel11, jLabel6, jLabel9});
+
+        jPanelMiscellaneousItemLayout.setVerticalGroup(
+            jPanelMiscellaneousItemLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelMiscellaneousItemLayout.createSequentialGroup()
+                .addGroup(jPanelMiscellaneousItemLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel6)
+                    .addComponent(jToggleBtnHelmet))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelMiscellaneousItemLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel9)
+                    .addComponent(jToggleBtnBelt))
+                .addGap(7, 7, 7)
+                .addGroup(jPanelMiscellaneousItemLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel10)
+                    .addComponent(jToggleBtnRing))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelMiscellaneousItemLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel11)
+                    .addComponent(jToggleBtnBoot))
+                .addContainerGap())
+        );
+
+        getContentPane().add(jPanelMiscellaneousItem, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 280, 230, -1));
+
+        jButtonSave.setText("Save and Exit");
+        jButtonSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSaveActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButtonSave, new org.netbeans.lib.awtextra.AbsoluteConstraints(1040, 610, -1, -1));
+
+        jPanelHitPoints.setBorder(javax.swing.BorderFactory.createTitledBorder("Hit Points"));
+
+        jLabel2.setText("Hit Point: ");
+
+        jLabel17.setText("Healing potion: ");
+
+        jButtonPotionConsume.setText("Consume");
+        jButtonPotionConsume.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPotionConsumeActionPerformed(evt);
+            }
+        });
+
+        jLabelHitPoints.setText("100");
+
+        jLabelMaxHitPointName.setText("Max Hit Point: ");
+
+        jLabelMaxHitPoints.setText("100");
+
+        javax.swing.GroupLayout jPanelHitPointsLayout = new javax.swing.GroupLayout(jPanelHitPoints);
+        jPanelHitPoints.setLayout(jPanelHitPointsLayout);
+        jPanelHitPointsLayout.setHorizontalGroup(
+            jPanelHitPointsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelHitPointsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelHitPointsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabelMaxHitPointName)
+                    .addComponent(jLabel17))
+                .addGap(29, 29, 29)
+                .addGroup(jPanelHitPointsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelHitPointsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabelHitPoints, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButtonPotionConsume))
+                    .addComponent(jLabelMaxHitPoints, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
+        jPanelHitPointsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel17, jLabel2});
+
+        jPanelHitPointsLayout.setVerticalGroup(
+            jPanelHitPointsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelHitPointsLayout.createSequentialGroup()
+                .addGroup(jPanelHitPointsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabelHitPoints))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelHitPointsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonPotionConsume)
+                    .addComponent(jLabel17))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelHitPointsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelMaxHitPointName)
+                    .addComponent(jLabelMaxHitPoints))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanelHitPoints, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 470, 230, -1));
+
+        jPanelAbiltyScores.setBorder(javax.swing.BorderFactory.createTitledBorder("Ability Scores and Modifiers"));
+
+        jLabel3.setText("Strength: ");
+
+        jLabel4.setText("Dexterity: ");
+
+        jLabel5.setText("Constitution: ");
+
+        jLabel12.setText("Wisdom: ");
+
+        jLabel13.setText("Intelligence:  ");
+
+        jLabel14.setText("Charisma: ");
+
+        jLabelStrength.setText("jLabel15");
+
+        jLabelDexterity.setText("jLabel15");
+
+        jLabelConstitution.setText("jLabel15");
+
+        jLabelWisdom.setText("jLabel15");
+
+        jLabelIntelligence.setText("jLabel15");
+
+        jLabelCharisma.setText("jLabel15");
+
+        jLabelStrengthModifier.setText("jLabel15");
+
+        jLabelDexterityModifier.setText("jLabel15");
+
+        jLabelConstitutionModifier.setText("jLabel15");
+
+        jLabelWisdomModifier.setText("jLabel15");
+
+        jLabelIntelligenceModifier.setText("jLabel15");
+
+        jLabelCharismaModifier.setText("jLabel15");
+
+        javax.swing.GroupLayout jPanelAbiltyScoresLayout = new javax.swing.GroupLayout(jPanelAbiltyScores);
+        jPanelAbiltyScores.setLayout(jPanelAbiltyScoresLayout);
+        jPanelAbiltyScoresLayout.setHorizontalGroup(
+            jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelAbiltyScoresLayout.createSequentialGroup()
+                .addGap(38, 38, 38)
+                .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelAbiltyScoresLayout.createSequentialGroup()
+                        .addComponent(jLabelStrength)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabelStrengthModifier))
+                    .addGroup(jPanelAbiltyScoresLayout.createSequentialGroup()
+                        .addComponent(jLabelDexterity)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabelDexterityModifier))
+                    .addGroup(jPanelAbiltyScoresLayout.createSequentialGroup()
+                        .addComponent(jLabelConstitution)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabelConstitutionModifier))
+                    .addGroup(jPanelAbiltyScoresLayout.createSequentialGroup()
+                        .addComponent(jLabelWisdom)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabelWisdomModifier))
+                    .addGroup(jPanelAbiltyScoresLayout.createSequentialGroup()
+                        .addComponent(jLabelIntelligence)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabelIntelligenceModifier))
+                    .addGroup(jPanelAbiltyScoresLayout.createSequentialGroup()
+                        .addComponent(jLabelCharisma)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabelCharismaModifier)))
+                .addContainerGap(67, Short.MAX_VALUE))
+        );
+        jPanelAbiltyScoresLayout.setVerticalGroup(
+            jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelAbiltyScoresLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabelStrength)
+                    .addComponent(jLabelStrengthModifier))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelDexterity)
+                        .addComponent(jLabelDexterityModifier)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5)
+                    .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelConstitution)
+                        .addComponent(jLabelConstitutionModifier)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel12)
+                    .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelWisdom)
+                        .addComponent(jLabelWisdomModifier)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel13)
+                    .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelIntelligence)
+                        .addComponent(jLabelIntelligenceModifier)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel14)
+                    .addGroup(jPanelAbiltyScoresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelCharisma)
+                        .addComponent(jLabelCharismaModifier)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanelAbiltyScores, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 440, 300, -1));
+
+        jLabelCharacterName.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelCharacterName.setText("Character Name");
+        getContentPane().add(jLabelCharacterName, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 30, 130, 30));
+
+        jPanelAttackBonus.setBorder(javax.swing.BorderFactory.createTitledBorder("Bonus"));
+
+        jLabelBaseAttackBonus.setText("Base Attack Bonus");
+
+        jLabelRangeAttackBonus.setText("Range Attack Bonus");
+
+        jLabelRangeAttackBonusValue.setText("0");
+
+        jLabelBaseAttackBonusValue.setText("0");
+
+        jLabelMeleeAttackBonus.setText("Melee Attack Bonus");
+
+        jLabelMeleeAttackBonusValue.setText("0");
+
+        jLabelAttackPerRound.setText("Attack Per Round");
+
+        jLabelAttackPerRoundValue.setText("0");
+
+        javax.swing.GroupLayout jPanelAttackBonusLayout = new javax.swing.GroupLayout(jPanelAttackBonus);
+        jPanelAttackBonus.setLayout(jPanelAttackBonusLayout);
+        jPanelAttackBonusLayout.setHorizontalGroup(
+            jPanelAttackBonusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelAttackBonusLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelAttackBonusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelBaseAttackBonus)
+                    .addComponent(jLabelRangeAttackBonus)
+                    .addComponent(jLabelMeleeAttackBonus)
+                    .addComponent(jLabelAttackPerRound))
+                .addGap(48, 48, 48)
+                .addGroup(jPanelAttackBonusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelAttackPerRoundValue, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelMeleeAttackBonusValue, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelBaseAttackBonusValue)
+                    .addComponent(jLabelRangeAttackBonusValue, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(24, Short.MAX_VALUE))
+        );
+
+        jPanelAttackBonusLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabelBaseAttackBonusValue, jLabelRangeAttackBonusValue});
+
+        jPanelAttackBonusLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabelBaseAttackBonus, jLabelRangeAttackBonus});
+
+        jPanelAttackBonusLayout.setVerticalGroup(
+            jPanelAttackBonusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelAttackBonusLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelAttackBonusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelBaseAttackBonus)
+                    .addComponent(jLabelBaseAttackBonusValue))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelAttackBonusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelRangeAttackBonusValue, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelRangeAttackBonus))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelAttackBonusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelMeleeAttackBonus)
+                    .addComponent(jLabelMeleeAttackBonusValue, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addGroup(jPanelAttackBonusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelAttackPerRound)
+                    .addComponent(jLabelAttackPerRoundValue, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        getContentPane().add(jPanelAttackBonus, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 470, -1, 130));
+
+        jLabelCharacterType.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelCharacterType.setText("Character Type");
+        getContentPane().add(jLabelCharacterType, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 30, 117, 30));
+
+        jPanelShields.setBorder(javax.swing.BorderFactory.createTitledBorder("Shields"));
+
+        jToggleBtnBuckler.setText("Buckler");
+        jToggleBtnBuckler.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnBucklerActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnHeavyShield.setText("Heavy Shield");
+        jToggleBtnHeavyShield.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnHeavyShieldActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnTowerShield.setText("Tower Shield");
+        jToggleBtnTowerShield.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnTowerShieldActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanelShieldsLayout = new javax.swing.GroupLayout(jPanelShields);
+        jPanelShields.setLayout(jPanelShieldsLayout);
+        jPanelShieldsLayout.setHorizontalGroup(
+            jPanelShieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelShieldsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jToggleBtnTowerShield)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jToggleBtnBuckler)
+                .addContainerGap())
+            .addGroup(jPanelShieldsLayout.createSequentialGroup()
+                .addGap(60, 60, 60)
+                .addComponent(jToggleBtnHeavyShield, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(130, 130, 130))
+        );
+
+        jPanelShieldsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jToggleBtnBuckler, jToggleBtnHeavyShield, jToggleBtnTowerShield});
+
+        jPanelShieldsLayout.setVerticalGroup(
+            jPanelShieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelShieldsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelShieldsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jToggleBtnTowerShield)
+                    .addComponent(jToggleBtnBuckler))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jToggleBtnHeavyShield)
+                .addContainerGap(16, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanelShields, new org.netbeans.lib.awtextra.AbsoluteConstraints(890, 150, 249, 110));
+
+        jPanelArmorClass.setBorder(javax.swing.BorderFactory.createTitledBorder("ArmorClass"));
+
+        jLabelShieldModifierName.setText("Shield Modifier: ");
+
+        jLabelArmorModifierName.setText("Armor Modifier: ");
+
+        jLabelArmorClassName.setText("Armor Class: ");
+
+        jLabelShieldModifier.setText("0");
+
+        jLabelArmorModifier.setText("0");
+
+        jLabelArmorClass.setText("0");
+
+        javax.swing.GroupLayout jPanelArmorClassLayout = new javax.swing.GroupLayout(jPanelArmorClass);
+        jPanelArmorClass.setLayout(jPanelArmorClassLayout);
+        jPanelArmorClassLayout.setHorizontalGroup(
+            jPanelArmorClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelArmorClassLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelArmorClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelArmorClassLayout.createSequentialGroup()
+                        .addComponent(jLabelShieldModifierName)
+                        .addGap(10, 10, 10)
+                        .addComponent(jLabelShieldModifier, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanelArmorClassLayout.createSequentialGroup()
+                        .addGroup(jPanelArmorClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabelArmorModifierName)
+                            .addComponent(jLabelArmorClassName))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanelArmorClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabelArmorClass, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabelArmorModifier, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(115, Short.MAX_VALUE))
+        );
+        jPanelArmorClassLayout.setVerticalGroup(
+            jPanelArmorClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelArmorClassLayout.createSequentialGroup()
+                .addGroup(jPanelArmorClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelShieldModifierName)
+                    .addComponent(jLabelShieldModifier))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelArmorClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelArmorModifierName)
+                    .addComponent(jLabelArmorModifier))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanelArmorClassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelArmorClassName)
+                    .addComponent(jLabelArmorClass))
+                .addContainerGap(38, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanelArmorClass, new org.netbeans.lib.awtextra.AbsoluteConstraints(890, 290, -1, -1));
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Magic Value"));
+
+        jLabel1.setText("Magic Value: ");
+
+        jLabel15.setText("Modifer class: ");
+
+        jLabelMagicValue.setText("Value");
+
+        jLabelModifierClass.setText("Value");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jLabel15, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
+                .addGap(40, 40, 40)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabelModifierClass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabelMagicValue, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))
+                .addContainerGap(60, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabelMagicValue))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel15)
+                    .addComponent(jLabelModifierClass))
+                .addContainerGap(34, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 530, 280, -1));
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * This method not used in this version.
+     * @param evt Passing the event for the JToggleButton key pressed
+     */
+    private void jToggleBtnPaddedKeyPressed(java.awt.event.KeyEvent evt)//GEN-FIRST:event_jToggleBtnPaddedKeyPressed
+    {//GEN-HEADEREND:event_jToggleBtnPaddedKeyPressed
+     
+    }//GEN-LAST:event_jToggleBtnPaddedKeyPressed
+
+    /**
+     * Enables or disables the Padded Armor.
+     * @param evt Passing the event for the JToggleButton key event action
+     */
+    private void jToggleBtnPaddedActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnPaddedActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnPaddedActionPerformed
+
+        Armor armor_padded = new Armor(_armorType.PADDED);
+
+        wearItemsHandler(armor_padded, jToggleBtnPadded, 1);
+
+        if (jToggleBtnPadded.isSelected())
+        {
+            armorBtnActvator(jToggleBtnPadded);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnPadded);
+        }
+    }//GEN-LAST:event_jToggleBtnPaddedActionPerformed
+
+    // Enables or disables the Leather Armor.
+    private void jToggleBtnLeatherActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnLeatherActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnLeatherActionPerformed
+        Armor armor_leather = new Armor(_armorType.LEATHER);
+        wearItemsHandler(armor_leather, jToggleBtnLeather, 1);
+
+        if (jToggleBtnLeather.isSelected())
+        {
+            armorBtnActvator(jToggleBtnLeather);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnLeather);
+        }
+    }//GEN-LAST:event_jToggleBtnLeatherActionPerformed
+
+    //Enables or disables the studded leather.
+    private void jToggleBtnStuddedLeatherActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnStuddedLeatherActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnStuddedLeatherActionPerformed
+        Armor armor_studdedLeather = new Armor(_armorType.STUDDEDLEATHER);
+
+        wearItemsHandler(armor_studdedLeather, jToggleBtnStuddedLeather, 1);
+
+        if (jToggleBtnStuddedLeather.isSelected())
+        {
+            armorBtnActvator(jToggleBtnStuddedLeather);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnStuddedLeather);
+        }
+    }//GEN-LAST:event_jToggleBtnStuddedLeatherActionPerformed
+
+    //Enables or disables the full plate armor.
+    private void jToggleBtnFullPlateActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnFullPlateActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnFullPlateActionPerformed
+        Armor armor_fullPlate = new Armor(ArmorType.FULLPLATE);
+        
+        wearItemsHandler(armor_fullPlate, jToggleBtnFullPlate, 1);
+
+        if (jToggleBtnFullPlate.isSelected())
+        {
+            armorBtnActvator(jToggleBtnFullPlate);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnFullPlate);
+        }
+    }//GEN-LAST:event_jToggleBtnFullPlateActionPerformed
+
+    //Armed and disarmed the weapon sword.
+    private void jToggleBtnSwordActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnSwordActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnSwordActionPerformed
+        LongSword ls = new LongSword();
+        wearItemsHandler(ls, jToggleBtnSword, 3);
+        if (jToggleBtnSword.isSelected())
+        {
+            weaponBtnActvator(jToggleBtnSword);
+        }
+        else
+        {
+            weaponBtnDeactvator(jToggleBtnSword);
+        }
+
+
+    }//GEN-LAST:event_jToggleBtnSwordActionPerformed
+
+    //Armed and disarmed the weapon Bow
+    private void jToggleBtnBowActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnBowActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnBowActionPerformed
+        LongBow lb = new LongBow();
+        wearItemsHandler(lb, jToggleBtnBow, 3);
+        if (jToggleBtnBow.isSelected())
+        {
+            weaponBtnActvator(jToggleBtnBow);
+        }
+        else
+        {
+            weaponBtnDeactvator(jToggleBtnBow);
+        }
+    }//GEN-LAST:event_jToggleBtnBowActionPerformed
+
+    //Enables or disables the helmet
+    private void jToggleBtnHelmetActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnHelmetActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnHelmetActionPerformed
+        Helmet helmet = new Helmet();
+        wearItemsHandler(helmet, jToggleBtnHelmet, 0);
+    }//GEN-LAST:event_jToggleBtnHelmetActionPerformed
+
+    //Enables or disables the Belt
+    private void jToggleBtnBeltActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnBeltActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnBeltActionPerformed
+        Belt belt = new Belt();
+        wearItemsHandler(belt, jToggleBtnBelt, 5);
+    }//GEN-LAST:event_jToggleBtnBeltActionPerformed
+
+    //Enables or disables the Ring
+    private void jToggleBtnRingActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnRingActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnRingActionPerformed
+        Ring ring = new Ring();
+        wearItemsHandler(ring, jToggleBtnRing, 4);
+    }//GEN-LAST:event_jToggleBtnRingActionPerformed
+
+    //Enables or disables the Boot
+    private void jToggleBtnBootActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnBootActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnBootActionPerformed
+        Boot ls = new Boot();
+        wearItemsHandler(ls, jToggleBtnBoot, 6);
+    }//GEN-LAST:event_jToggleBtnBootActionPerformed
+
+    //Exit from the editor
+    private void jButtonSaveActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonSaveActionPerformed
+    {//GEN-HEADEREND:event_jButtonSaveActionPerformed
+//        ListModel model = jListInventory.getModel();
+//        boolean deleteFlag = true;
+//
+//        //Checks each of the items in the inventory, which were moved to the backpack
+//        //from inventory and update the list for those.
+//        for(int i = 0; i<_character.getInventroyItem().size(); i++)
+//        {
+//            for(int x = 0; x < model.getSize(); x++)
+//            {
+//                if(_character.getInventroyItem().get(i).getName().equalsIgnoreCase(model.getElementAt(x).toString()))
+//                {
+//                    deleteFlag = false;
+//                    break;
+//                }
+//                else
+//                {
+//                    deleteFlag = true;
+//                }
+//            }
+//            if(deleteFlag == true)
+//            {
+//                _character.addBackpackItems(_character.getInventroyItem().get(i), false);
+//                _character.getInventroyItem().remove(i);
+//            }
+//        }
+        System.out.print('\n' + "Inventory item list: ");
+        for(int i=0; i<_character.getInventroyItem().size(); i++)
+            System.out.print(_character.getInventroyItem().get(i).getName() + " ");
+
+        System.out.print('\n' + "Backpack item list: ");
+        for(int i=0; i<_character.getBackPack().size(); i++)
+            System.out.print( _character.getBackPack().get(i).getName() + " ");
+
+        //this.setVisible(false);
+        this.dispose();
+    }//GEN-LAST:event_jButtonSaveActionPerformed
+
+    /**Private method for consuming healing potion and adding to player hit points.
+     modified for second build.
+     @author khushnuma
+     @version 1.2.0*/
+    private void jButtonPotionConsumeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonPotionConsumeActionPerformed
+    {//GEN-HEADEREND:event_jButtonPotionConsumeActionPerformed
+        HealingPotion hp = new HealingPotion();
+
+        //check for empty backpack first
+        if(_modelBackpack.isEmpty()){
+            JOptionPane.showMessageDialog(null, "Healing Potion is not available. Backpack is empty", "Dungeon & Dragon", 1);
+            jButtonPotionConsume.setSelected(false);
+        }//end if for backpak is empty
+        else{//backpack not empty
+        //checks the backpack
+        for(int i=0; i<_modelBackpack.getSize(); i++)
+        {
+            //if potion is in the inventory and hit point less than 100, then will be consumed
+            if(_modelBackpack.getElementAt(i).toString().equalsIgnoreCase(hp.getName()))
+            {
+                int difference = _character.getMaxHitPoints()-_character.getHitPoints();
+                if(difference>=2)
+                {
+                    //Increase the hit points by 2
+                    _character.setHitPoints(_character.getHitPoints()+ 2);
+                    //jProgressHitPoints.setValue(_character.getHitPoints() + _character.getHealingPotion());//commented out by khush
+                    jLabelHitPoints.setText(Integer.toString(_character.getHitPoints()));
+                    _modelBackpack.remove(i);
+                }
+                else if(difference ==1){
+                    //Increase the hit points by 1 only
+                    _character.setHitPoints(_character.getHitPoints()+ 1);
+                    //jProgressHitPoints.setValue(_character.getHitPoints() + _character.getHealingPotion());//commented out by khush
+                    jLabelHitPoints.setText(Integer.toString(_character.getHitPoints()));
+                    _modelBackpack.remove(i);
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "Healing Potion can not be consumed yet.", "Dungeon & Dragon", 1);
+                }
+
+                break;
+            }
+            //show message if potion is not available in the backpack
+            if(i == _modelBackpack.getSize()-1)
+            {
+                JOptionPane.showMessageDialog(null, hp.getName() + " is not available.", "Dungeon & Dragon", 1);                
+            }
+        }//end for loop
+        }//end else
+    }//GEN-LAST:event_jButtonPotionConsumeActionPerformed
+/*private method to enable disable chain shirt armor button*/
+    private void jToggleBtnChainShirtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleBtnChainShirtActionPerformed
+        Armor armor_chainShirt = new Armor(_armorType.CHAINSHIRT);
+        wearItemsHandler(armor_chainShirt, jToggleBtnChainShirt, 1);
+
+        if (jToggleBtnChainShirt.isSelected())
+        {
+            armorBtnActvator(jToggleBtnChainShirt);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnChainShirt);
+        }
+    }//GEN-LAST:event_jToggleBtnChainShirtActionPerformed
+//dont use
+    private void jToggleBtnChainShirtKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jToggleBtnChainShirtKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jToggleBtnChainShirtKeyPressed
+/**
+ * method to enable or disable the breast plate armor button.
+ * @param evt
+ */
+    private void jToggleBtnBreastPlateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleBtnBreastPlateActionPerformed
+        // TODO add your handling code here:
+        Armor armor_breastPlate = new Armor(_armorType.BREASTPLATE);
+        wearItemsHandler(armor_breastPlate, jToggleBtnBreastPlate, 1);
+
+        if (jToggleBtnBreastPlate.isSelected())
+        {
+            armorBtnActvator(jToggleBtnBreastPlate);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnBreastPlate);
+        }
+    }//GEN-LAST:event_jToggleBtnBreastPlateActionPerformed
+//dont use
+    private void jToggleBtnBreastPlateKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jToggleBtnBreastPlateKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jToggleBtnBreastPlateKeyPressed
+
+    private void jToggleBtnBandedMailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleBtnBandedMailActionPerformed
+        // TODO add your handling code here:
+        Armor armor_bandedMail = new Armor(_armorType.BANDEDMAIL);
+        wearItemsHandler(armor_bandedMail, jToggleBtnBandedMail, 1);
+        if (jToggleBtnBandedMail.isSelected())
+        {
+            armorBtnActvator(jToggleBtnBandedMail);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnBandedMail);
+        }
+    }//GEN-LAST:event_jToggleBtnBandedMailActionPerformed
+//dont use
+    private void jToggleBtnBandedMailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jToggleBtnBandedMailKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jToggleBtnBandedMailKeyPressed
+/*private method to enable or disable the half plate armor button*/
+    private void jToggleBtnHalfPlateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleBtnHalfPlateActionPerformed
+        // TODO add your handling code here:
+        Armor armor_halfPlate = new Armor(_armorType.HALFPLATE);
+        wearItemsHandler(armor_halfPlate, jToggleBtnHalfPlate, 1);
+        if (jToggleBtnHalfPlate.isSelected())
+        {
+            armorBtnActvator(jToggleBtnHalfPlate);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnHalfPlate);
+        }
+
+    }//GEN-LAST:event_jToggleBtnHalfPlateActionPerformed
+//dont use
+    private void jToggleBtnHalfPlateKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jToggleBtnHalfPlateKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jToggleBtnHalfPlateKeyPressed
+/**
+ * method to enable or disable the toggle button for buckler shield.
+ * @param evt
+ */
+    private void jToggleBtnBucklerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleBtnBucklerActionPerformed
+        // TODO add your handling code here:
+        Shield shield_buckler = new Shield(_shieldType.BUCKLER);
+        wearItemsHandler(shield_buckler, jToggleBtnBuckler, 2);
+        if (jToggleBtnBuckler.isSelected())
+        {
+            shieldBtnActvator(jToggleBtnBuckler);
+        }
+        else
+        {
+            shieldBtnDeactvator(jToggleBtnBuckler);
+        }
+    }//GEN-LAST:event_jToggleBtnBucklerActionPerformed
+/*method to activate or deactivate heavy shield toggle button depending on type of shield chosen*/
+    private void jToggleBtnHeavyShieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleBtnHeavyShieldActionPerformed
+        // TODO add your handling code here:
+        Shield shield_heavyShield = new Shield(_shieldType.HEAVYSHIELD);
+        wearItemsHandler(shield_heavyShield, jToggleBtnHeavyShield, 2);
+        if (jToggleBtnHeavyShield.isSelected())
+        {
+            shieldBtnActvator(jToggleBtnHeavyShield);
+        }
+        else
+        {
+            shieldBtnDeactvator(jToggleBtnHeavyShield);
+        }
+
+    }//GEN-LAST:event_jToggleBtnHeavyShieldActionPerformed
+/**
+ * method to enable or disable tower shield button depending on toggle button.
+ * @param evt
+ */
+    private void jToggleBtnTowerShieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleBtnTowerShieldActionPerformed
+        // TODO add your handling code here:
+        Shield shield_towerShield = new Shield(_shieldType.TOWERSHIELD);
+        wearItemsHandler(shield_towerShield, jToggleBtnTowerShield, 2);
+        if (jToggleBtnTowerShield.isSelected())
+        {
+            shieldBtnActvator(jToggleBtnTowerShield);
+        }
+        else
+        {
+            shieldBtnDeactvator(jToggleBtnTowerShield);
+        }
+
+    }//GEN-LAST:event_jToggleBtnTowerShieldActionPerformed
+
+    private void jButtonUpdateActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonUpdateActionPerformed
+    {//GEN-HEADEREND:event_jButtonUpdateActionPerformed
+//         for(int i=0; i<_modelBackpack.getSize(); i++)
+//             System.out.print(_modelBackpack.get(i).toString() + " ");
+//
+//         System.out.print('\n');
+//
+//         for(int i=0; i<_modelInventory.getSize(); i++)
+//             System.out.print(_modelInventory.get(i).toString() + " ");
+
+        //######################################################################
+        ListModel model = jListBackpack.getModel();
+        boolean deleteFlag = false;
+
+        //Checks each of the items in the inventory, which were moved to the backpack
+        //from inventory and update the list for those.
+        for(int i = 0; i<model.getSize(); i++)
+        {
+            int x = 0;
+            for(x = 0; x < _character.getInventroyItem().size(); x++)
+            {
+                if(model.getElementAt(i).toString().equalsIgnoreCase(_character.getInventroyItem().get(x).getName()))
+                {
+                    deleteFlag = true;
+                    break;
+                }
+                else
+                {
+                    deleteFlag = false;
+                }
+            }
+            if(deleteFlag == true)
+            {
+                _character.addBackpackItems(_character.getInventroyItem().get(x), false);
+                _character.getInventroyItem().remove(x);
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, "Backpack updated !!", "Dungeon & Dragon", 1);
+        
+        System.out.print('\n' + "Inventory item list: ");
+        for(int i=0; i<_character.getInventroyItem().size(); i++)
+            System.out.print(_character.getInventroyItem().get(i).getName() + " ");
+
+        System.out.print('\n' + "Backpack item list: ");
+        for(int i=0; i<_character.getBackPack().size(); i++)
+            System.out.print( _character.getBackPack().get(i).getName() + " ");
+             
+    }//GEN-LAST:event_jButtonUpdateActionPerformed
+
+    private void jListBackpackMouseClicked(java.awt.event.MouseEvent evt)//GEN-FIRST:event_jListBackpackMouseClicked
+    {//GEN-HEADEREND:event_jListBackpackMouseClicked
+        int magic_setter = _character.getBackPack().get(jListBackpack.getSelectedIndex()).getMagicSetter();
+        String modifier_class;
+
+        if(magic_setter == 1)
+            modifier_class = "Armor Class";
+        else if(magic_setter == 2)
+            modifier_class = "Dexteriy Modifier";
+        else if(magic_setter == 3)
+            modifier_class = "Strength Modifier";
+        else if(magic_setter == 4)
+            modifier_class = "Wisdom Modifier";
+        else if(magic_setter == 5)
+            modifier_class = " Charisma Modifier";
+        else if(magic_setter == 6)
+            modifier_class = "Intelligence Modifier";
+        else if(magic_setter == 7)
+            modifier_class = "Attack and Damage Bonus";
+        else
+            modifier_class = "---";
+
+        try
+        {
+            jLabelMagicValue.setText(Integer.toString(_character.getBackPack().get(jListBackpack.getSelectedIndex()).getMagicValue()));
+            jLabelModifierClass.setText(modifier_class);
+        }
+        catch(Exception ex)
+        {
+            System.out.println("List selection:" + ex.getMessage());
+        }
+
+    }//GEN-LAST:event_jListBackpackMouseClicked
+
+/* This method controls the state of the two weapon buttons. When one is pressed,
+     * others toggled and become not selected.
+     * @author khushnuma
+     * @version 1.1.0
+     * @param pToggleButton It is the reference of the button, which is pressed.
+*/
+    private void weaponBtnActvator(JToggleButton pToggleButton)
+    {
+        if (pToggleButton != jToggleBtnSword)
+        {
+            jToggleBtnSword.setEnabled(false);
+        }
+        if (pToggleButton != jToggleBtnBow)
+        {
+            jToggleBtnBow.setEnabled(false);
+        }
+    }
+    /**
+     * Method to refresh all the values and labels of the inventory screen
+     * according to the player's current status.
+     * @version 1.0.0
+     * @author for build 2.
+     */
+    public void refreshAllLabels(){
+        //ability score in ability panel
+        jLabelStrength.setText(Integer.toString(_character.getStrength()));
+        jLabelDexterity.setText(Integer.toString(_character.getDexterity()));
+        jLabelConstitution.setText(Integer.toString(_character.getConstitution()));
+        jLabelWisdom.setText(Integer.toString(_character.getWisdom()));
+        jLabelIntelligence.setText(Integer.toString(_character.getIntelligence()));
+        jLabelCharisma.setText(Integer.toString(_character.getCharisma()));
+        //ability modifier same panel as above
+//        jLabelStrengthModifier.setText(Integer.toString(_character.getStrengthModifier()));
+//        jLabelDexterityModifier.setText(Integer.toString(_character.calculateModifier(_character.getDexterity())));
+//        jLabelConstitutionModifier.setText(Integer.toString(_character.calculateModifier(_character.getConstitution())));
+//        jLabelWisdomModifier.setText(Integer.toString(_character.calculateModifier(_character.getWisdom())));
+//        jLabelIntelligenceModifier.setText(Integer.toString(_character.calculateModifier(_character.getIntelligence())));
+//        jLabelCharismaModifier.setText(Integer.toString(_character.calculateModifier(_character.getCharisma())));
+
+        jLabelStrengthModifier.setText(Integer.toString(_character.getStrengthModifier()));
+        jLabelDexterityModifier.setText(Integer.toString(_character.getDexterityModifier()));
+        jLabelConstitutionModifier.setText(Integer.toString(_character.getConstitutionModifier()));
+        jLabelWisdomModifier.setText(Integer.toString(_character.getWisdomModifier()));
+        jLabelIntelligenceModifier.setText(Integer.toString(_character.getIntelligenceModifier()));
+        jLabelCharismaModifier.setText(Integer.toString(_character.getCharismaModifier()));
+
+        //refresh attack bonus variables pabnel
+        jLabelBaseAttackBonusValue.setText(Integer.toString(_character.getBaseAttackBonus()));
+        jLabelRangeAttackBonusValue.setText(Integer.toString(_character.getRangeAttackBonus()));
+        jLabelMeleeAttackBonusValue.setText(Integer.toString(_character.getMeleeAttackBonus()));
+        jLabelAttackPerRoundValue.setText(Integer.toString(_character.getAttackPerRound()));
+        //no value for attack bonus since not needed
+
+        //Hitpoints and max hit points panel
+        jLabelMaxHitPoints.setText(Integer.toString(_character.getMaxHitPoints()));
+        jLabelHitPoints.setText(Integer.toString(_character.getHitPoints()));
+
+        //armor class panel- call relevant function
+        refreshArmorClassLabels();
+
+        //character name and type
+        jLabelCharacterName.setText(_character.getName() + " (Level-" +
+                Integer.toString(_character.getLevel()) + ")");
+        jLabelCharacterType.setText(_character.getCharacterType().toString());//bully nimble or tank
+
+        //refresh backpack CREATING PROBLEM
+        //jListBackpack.clearSelection();
+        _modelBackpack = _character.getBackpackList();
+        jListBackpack.setModel(_modelBackpack);
+        //jListBackpack.updateUI();
+        //jPanel9.repaint();
+        //hi
+
+
+    }
+    /**
+     * Method to refresh the armor class, shield modifier and armor modifier 
+     * when change of armor or shield occurs.
+     */
+    private void refreshArmorClassLabels(){
+        jLabelShieldModifier.setText(Integer.toString(_character.getShieldModifier()));
+        jLabelArmorModifier.setText(Integer.toString(_character.getArmorModifier()));
+        jLabelArmorClass.setText(Integer.toString(_character.getArmorClass()));
+    }
+
+    /**
+     * This method controls the state of the two weapon buttons. When one is unselected,
+     * others toggled and become selected.
+     * @param pToggleButton It is the reference of the button, which is pressed.
+     * Method created for build 2
+     * @author khushnuma
+     * @version 1.1.0
+     */
+    private void weaponBtnDeactvator(JToggleButton pToggleButton)
+    {
+        if (pToggleButton != jToggleBtnBow)
+        {
+            jToggleBtnBow.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnSword)
+        {
+            jToggleBtnSword.setEnabled(true);
+        }
+    }
+    /* This method controls the state of the three shield buttons. When one is pressed,
+     * others toggled and become not selected.
+     * @author khushnuma
+     * @version 1.1.0
+     * @param pToggleButton It is the reference of the button, which is pressed.
+*/
+    private void shieldBtnActvator(JToggleButton pToggleButton)
+    {
+        if (pToggleButton != jToggleBtnBuckler)
+        {
+            jToggleBtnBuckler.setEnabled(false);
+        }
+        if (pToggleButton != jToggleBtnTowerShield)
+        {
+            jToggleBtnTowerShield.setEnabled(false);
+        }
+        if (pToggleButton != jToggleBtnHeavyShield)
+        {
+            jToggleBtnHeavyShield.setEnabled(false);
+        }
+    }
+
+    /**
+     * This method controls the state of the three shield buttons. When one is unselected,
+     * others toggled and become selected.
+     * @param pToggleButton It is the reference of the button, which is pressed.
+     * Method created for build 2
+     * @author khushnuma
+     * @version 1.1.0
+     */
+    private void shieldBtnDeactvator(JToggleButton pToggleButton)
+    {
+        if (pToggleButton != jToggleBtnBuckler)
+        {
+            jToggleBtnBuckler.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnHeavyShield)
+        {
+            jToggleBtnHeavyShield.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnTowerShield)
+        {
+            jToggleBtnTowerShield.setEnabled(true);
+        }
+    }
+
+    //call this method from constructor only.
+    private void refeshWornItems()
+    {//start method
+        if (_character.getShieldModifier() == 1)
+        {//select buckle button and disable the rest
+            jToggleBtnBuckler.setSelected(true);
+            shieldBtnActvator(jToggleBtnBuckler);
+        } else if (_character.getShieldModifier() == 2)
+        {//select heavy shield disble rest
+            jToggleBtnHeavyShield.setSelected(true);
+            shieldBtnActvator(jToggleBtnHeavyShield);
+        } else if (_character.getShieldModifier() == 4)
+        {//select tower shiedl disable rest
+            jToggleBtnTowerShield.setSelected(true);
+            shieldBtnActvator(jToggleBtnTowerShield);
+        }
+        //armor
+        if (_character.getArmorModifier() == 1)
+        {//select padded disable others
+            jToggleBtnPadded.setSelected(true);
+            armorBtnActvator(jToggleBtnPadded);
+        } else if (_character.getArmorModifier() == 2)
+        {//select leather disable the rest
+            jToggleBtnLeather.setSelected(true);
+            armorBtnActvator(jToggleBtnLeather);
+        } else if (_character.getArmorModifier() == 3)
+        {//select studded leather disable the rest
+            jToggleBtnStuddedLeather.setSelected(true);
+            armorBtnActvator(jToggleBtnStuddedLeather);
+        } else if (_character.getArmorModifier() == 4)
+        {//select chain shirt disable the rest
+            jToggleBtnChainShirt.setSelected(true);
+            armorBtnActvator(jToggleBtnChainShirt);
+        } else if (_character.getArmorModifier() == 5)
+        {//select breast plate disable the rest
+            jToggleBtnBreastPlate.setSelected(true);
+            armorBtnActvator(jToggleBtnBreastPlate);
+        } else if (_character.getArmorModifier() == 6)
+        {//select banded mail disable the rest
+            jToggleBtnBandedMail.setSelected(true);
+            armorBtnActvator(jToggleBtnBandedMail);
+        } else if (_character.getArmorModifier() == 7)
+        {//select half plate disable the rest
+            jToggleBtnHalfPlate.setSelected(true);
+            armorBtnActvator(jToggleBtnHalfPlate);
+        } else if (_character.getArmorModifier() == 8)
+        {//select full plate disable the rest
+            jToggleBtnFullPlate.setSelected(true);
+            armorBtnActvator(jToggleBtnFullPlate);
+        }
+        //sword and bow weapons
+        if (_character.isIsRange())
+        {//select long bow disable longsword
+            jToggleBtnBow.setSelected(true);
+            weaponBtnActvator(jToggleBtnBow);
+        } else if (_character.isIsMelee())
+        {//select longsword  disable longbow
+            jToggleBtnSword.setSelected(true);
+            weaponBtnActvator(jToggleBtnSword);
+        }
+        // what to do about ring helmet boot belt
+        if (_character.isIsBelt())
+        {
+            jToggleBtnBelt.setSelected(true);
+        }
+        if (_character.isIsHelmet())
+        {
+            jToggleBtnHelmet.setSelected(true);
+        }
+        if (_character.isIsRing())
+        {
+            jToggleBtnRing.setSelected(true);
+        }
+        if (_character.isIsBoot())
+        {
+            jToggleBtnBoot.setSelected(true);
+        }
+    }//end method
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonPotionConsume;
+    private javax.swing.JButton jButtonSave;
+    private javax.swing.JButton jButtonUpdate;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelArmorClass;
+    private javax.swing.JLabel jLabelArmorClassName;
+    private javax.swing.JLabel jLabelArmorModifier;
+    private javax.swing.JLabel jLabelArmorModifierName;
+    private javax.swing.JLabel jLabelAttackPerRound;
+    private javax.swing.JLabel jLabelAttackPerRoundValue;
+    private javax.swing.JLabel jLabelBaseAttackBonus;
+    private javax.swing.JLabel jLabelBaseAttackBonusValue;
+    private javax.swing.JLabel jLabelCharacterName;
+    private javax.swing.JLabel jLabelCharacterType;
+    private javax.swing.JLabel jLabelCharisma;
+    private javax.swing.JLabel jLabelCharismaModifier;
+    private javax.swing.JLabel jLabelConstitution;
+    private javax.swing.JLabel jLabelConstitutionModifier;
+    private javax.swing.JLabel jLabelDexterity;
+    private javax.swing.JLabel jLabelDexterityModifier;
+    private javax.swing.JLabel jLabelHitPoints;
+    private javax.swing.JLabel jLabelIntelligence;
+    private javax.swing.JLabel jLabelIntelligenceModifier;
+    private javax.swing.JLabel jLabelMagicValue;
+    private javax.swing.JLabel jLabelMaxHitPointName;
+    private javax.swing.JLabel jLabelMaxHitPoints;
+    private javax.swing.JLabel jLabelMeleeAttackBonus;
+    private javax.swing.JLabel jLabelMeleeAttackBonusValue;
+    private javax.swing.JLabel jLabelModifierClass;
+    private javax.swing.JLabel jLabelRangeAttackBonus;
+    private javax.swing.JLabel jLabelRangeAttackBonusValue;
+    private javax.swing.JLabel jLabelShieldModifier;
+    private javax.swing.JLabel jLabelShieldModifierName;
+    private javax.swing.JLabel jLabelStrength;
+    private javax.swing.JLabel jLabelStrengthModifier;
+    private javax.swing.JLabel jLabelWisdom;
+    private javax.swing.JLabel jLabelWisdomModifier;
+    private javax.swing.JList jListBackpack;
+    private javax.swing.JList jListInventory;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanelAbiltyScores;
+    private javax.swing.JPanel jPanelArmor;
+    private javax.swing.JPanel jPanelArmorClass;
+    private javax.swing.JPanel jPanelAttackBonus;
+    private javax.swing.JPanel jPanelCharacterImage;
+    private javax.swing.JPanel jPanelHitPoints;
+    private javax.swing.JPanel jPanelLoadBackPack;
+    private javax.swing.JPanel jPanelMiscellaneousItem;
+    private javax.swing.JPanel jPanelShields;
+    private javax.swing.JPanel jPanelWeapons;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JToggleButton jToggleBtnBandedMail;
+    private javax.swing.JToggleButton jToggleBtnBelt;
+    private javax.swing.JToggleButton jToggleBtnBoot;
+    private javax.swing.JToggleButton jToggleBtnBow;
+    private javax.swing.JToggleButton jToggleBtnBreastPlate;
+    private javax.swing.JToggleButton jToggleBtnBuckler;
+    private javax.swing.JToggleButton jToggleBtnChainShirt;
+    private javax.swing.JToggleButton jToggleBtnFullPlate;
+    private javax.swing.JToggleButton jToggleBtnHalfPlate;
+    private javax.swing.JToggleButton jToggleBtnHeavyShield;
+    private javax.swing.JToggleButton jToggleBtnHelmet;
+    private javax.swing.JToggleButton jToggleBtnLeather;
+    private javax.swing.JToggleButton jToggleBtnPadded;
+    private javax.swing.JToggleButton jToggleBtnRing;
+    private javax.swing.JToggleButton jToggleBtnStuddedLeather;
+    private javax.swing.JToggleButton jToggleBtnSword;
+    private javax.swing.JToggleButton jToggleBtnTowerShield;
+    // End of variables declaration//GEN-END:variables
+}

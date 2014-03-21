@@ -1,0 +1,133 @@
+
+package Model.Game;
+
+import Model.Map.Map;
+import Model.Character;
+import Model.Map.MapCell;
+import java.util.Observable;
+
+/**
+ * Game model class.
+ * This class contents all the details and information of Game. It remains alive as
+ * long as the game is active.
+ * @author Xuexiang Hu
+ * @version 2.0
+ */
+public class Game extends Observable
+{
+
+    private Map _map = null;
+    private Character _player = null;
+    private boolean _gameOver = false;
+
+    /**
+     * The constructor initializes all the properties of the game.
+     * @param pPlayer it is the active and single player in the game. 
+     * @param pMap  it is the map we use during the game.
+     */
+    public Game(Character pPlayer, Map pMap)
+    {
+        _player = pPlayer;
+        _map = pMap;
+        _player.SetRow(pMap.getStartPoint().GetRow());
+        _player.SetCol(pMap.getStartPoint().GetCol());
+    }
+
+    /**
+     * This method checks if the game is over or not.
+     * @return Returns true if the game is over, otherwise false.
+     */
+    public boolean isGameOver()
+    {
+        return _gameOver;
+    }
+
+    /**
+     * This method returns the map using by the game.
+     * @return Returns value of map.
+     */
+    public Map getMap()
+    {
+        return _map;
+    }
+
+    /**
+     * This method returns the current character of the game player
+     * @return Returns value of Character object
+     */
+    public Character getPlayer()
+    {
+        return _player;
+    }
+
+    /**
+     * This method moves the current player to four possible new locations which could be up
+     * down, left or right. This method also cause the game view to refresh
+     * @param pDirection is an integer 0: direction up 1: direction down 2: direction left
+     * 3: direction right
+     */
+    public void movePlayer(int pDirection)
+    {
+        int row = _player.GetRow();
+        int col = _player.GetCol();
+        if (pDirection == 0) //move up
+        {
+            if (row > 0)
+            {
+                MapCell cell = _map.getMapElement(row - 1, col);
+                if (cell == null || cell.canOverlap())
+                {
+                    _player.SetRow(row - 1);
+                    UpdateView();
+                }
+            }
+        } else if (pDirection == 1) //move down
+        {
+            if (row < _map.getMapRows() - 1)
+            {
+                MapCell cell = _map.getMapElement(row + 1, col);
+                if (cell == null || cell.canOverlap())
+                {
+                    _player.SetRow(row + 1);
+                    UpdateView();
+                }
+            }
+        } else if (pDirection == 2) //move left
+        {
+            if (col > 0)
+            {
+                MapCell cell = _map.getMapElement(row, col - 1);
+                if (cell == null || cell.canOverlap())
+                {
+                    _player.SetCol(col - 1);
+                    UpdateView();
+                }
+            }
+        } else if (pDirection == 3) //move right
+        {
+            if (col < _map.getMapCols() - 1)
+            {
+                MapCell cell = _map.getMapElement(row, col + 1);
+                if (cell == null || cell.canOverlap())
+                {
+                    _player.SetCol(col + 1);
+                    UpdateView();
+                }
+            }
+        }
+
+    }
+
+    /**
+     * This private method update the all the views which binded to this game model.
+     */
+    private void UpdateView()
+    {
+        if (_player.GetRow() == _map.getEndPoint().GetRow() && _player.GetCol() == _map.getEndPoint().GetCol())
+        {
+            _gameOver = true;
+        }
+        this.setChanged();
+        this.notifyObservers();
+    }
+}

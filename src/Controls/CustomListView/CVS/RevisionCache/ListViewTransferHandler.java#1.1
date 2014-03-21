@@ -1,0 +1,46 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Controls.CustomListView;
+
+import java.awt.datatransfer.Transferable;
+import Model.Map.MapCell;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.TransferHandler;
+
+/**
+ *
+ * @author eric
+ */
+public class ListViewTransferHandler extends TransferHandler
+{
+
+    public ListViewTransferHandler()
+    {
+        super();
+    }
+
+    @Override
+    public int getSourceActions(JComponent pComponent)
+    {
+        return COPY_OR_MOVE;
+    }
+
+    @Override
+    public Transferable createTransferable(JComponent pComponent)
+    {
+        // TaskInstancePanel implements Transferable
+        Transferable ret = null;
+        if (pComponent instanceof JList)
+        {
+            JList list = (JList)pComponent;
+            if(list.getSelectedValue() instanceof MapCell)
+            {
+                ret = (Transferable)list.getSelectedValue();
+            }
+        }
+        return ret;
+    }
+}

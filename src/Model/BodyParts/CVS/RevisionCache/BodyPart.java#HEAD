@@ -1,0 +1,46 @@
+/**
+ *Body part is the super type class and some concrete classes will implement it.
+ * We use this class in our character class. 
+ * @author Hamid
+ */
+package Model.BodyParts;
+
+import Model.Items.Item;
+import Model.OutputConsole;
+
+
+public abstract class BodyPart
+{
+
+    protected String _name;
+    protected String _fileName;
+    protected Item _item;
+
+    public void wearItem(Item item)
+    {
+        //TODO method logic here;
+        OutputConsole.GetOutputConsoleInstance().Write("The character just put on " + item.getName());
+    }
+
+    public void takeOffItem(Item item)
+    {
+        //TODO method logic here;
+        OutputConsole.GetOutputConsoleInstance().Write("The character just took off" + item.getName());
+    }
+
+    public boolean isEquiped()
+    {
+        if (_item == null)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    public String getName()
+    {
+        return _name;
+    }
+    
+
+}

@@ -1,0 +1,46 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model;
+
+/**
+ *
+ * @author Ben
+ */
+public abstract class MapCell
+{
+    private String _fileName;
+    private int _row;
+    private int _col;
+
+    public int getCol()
+    {
+        return _col;
+    }
+
+    public String getFileName()
+    {
+        return _fileName;
+    }
+
+    public int getRow()
+    {
+        return _row;
+    }
+
+    public void setFileName(String _fileName)
+    {
+        this._fileName = _fileName;
+    }
+
+    public void setCol(int _col)
+    {
+        this._col = _col;
+    }
+
+    public void setRow(int _row)
+    {
+        this._row = _row;
+    }
+}

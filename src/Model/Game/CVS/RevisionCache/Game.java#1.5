@@ -1,0 +1,286 @@
+package Model.Game;
+
+import Model.Map.Map;
+import Model.Character;
+import Model.Map.MapCell;
+import Model.Map.MapCellMonster;
+import Model.Map.MapCellTreasure;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Random;
+
+/**
+ * Game model class.
+ * This class contents all the details and information of Game. It remains alive as
+ * long as the game is active.
+ * @author Xuexiang Hu
+ * @version  2.0
+ */
+public class Game extends Observable
+{
+
+    private final int MAX_MOVE = 5;
+    private Map _map = null;
+    private Character _player = null;
+    private boolean _gameOver = false;
+    private ArrayList<MapCell> _characterList = new ArrayList<MapCell>();
+    private int _activePlayer = 0;
+    private int _currentRound = 0;
+    private boolean _hasAttack = false;
+    private boolean _endTurn = false;
+
+    /**
+     * The constructor initializes all the properties of the game.
+     * @param pPlayer it is the active and single player in the game. 
+     * @param pMap  it is the map we use during the game.
+     */
+    public Game(Character pPlayer, Map pMap)
+    {
+        _player = pPlayer;
+        _map = pMap;
+        _player.SetRow(pMap.getStartPoint().GetRow());
+        _player.SetCol(pMap.getStartPoint().GetCol());
+        _characterList.add(_player);
+        for (int row = 0; row < pMap.getMapRows(); row++)
+        {
+            for (int col = 0; col < pMap.getMapCols(); col++)
+            {
+                MapCell cell = pMap.getMapElement(row, col);
+                if (cell instanceof MapCellMonster)
+                {
+                    _characterList.add(cell);
+                }
+            }
+        }
+    }
+
+    public boolean hasAttack()
+    {
+        return _hasAttack;
+    }
+
+    public ArrayList<Integer> getAttackList()
+    {
+        ArrayList<Integer> enemyList = new ArrayList<Integer>();
+        for (int i = 1; i < _characterList.size(); i++)
+        {
+            enemyList.add(new Integer(i));
+        }
+        return enemyList;
+    }
+
+    public void attackEnemy(int i)
+    {
+        _hasAttack = true;
+    }
+
+    public MapCell getActiveCell()
+    {
+        return _characterList.get(_activePlayer);
+    }
+
+    public boolean playerTurn()
+    {
+        return (getActiveCell() == _player);
+    }
+
+    public void startGame()
+    {
+    }
+
+    public boolean attackAndMove()
+    {
+        Random randomGenerator = new Random();
+        int randomInt = randomGenerator.nextInt(4);
+        movePlayer(getActiveCell(), randomInt);
+        return false;
+    }
+
+    public void playRound()
+    {
+        //set active player
+        if (!playerTurn())
+        {
+            if (attackAndMove())
+            {
+                _currentRound = MAX_MOVE;
+            } else
+            {
+                _currentRound += 1;
+            }
+        }
+        //if current player is human, active control
+
+        if (_currentRound == MAX_MOVE)
+        {
+
+            if (playerTurn() && _endTurn)
+            {
+                _activePlayer = (_activePlayer + 1) % _characterList.size();
+                _hasAttack = false;
+                _endTurn = false;
+                _currentRound = 0;
+            } else if(!playerTurn())
+            {
+                _currentRound = 0;
+                _activePlayer = (_activePlayer + 1) % _characterList.size();
+            }
+        }
+
+        UpdateView();
+    }
+
+    /**
+     * This method checks if the game is over or not.
+     * @return Returns true if the game is over, otherwise false.
+     */
+    public boolean isGameOver()
+    {
+        return _gameOver;
+    }
+
+    /**
+     * This method returns the map using by the game.
+     * @return Returns value of map.
+     */
+    public Map getMap()
+    {
+        return _map;
+    }
+
+    /**
+     * This method returns the current character of the game player
+     * @return Returns value of Character object
+     */
+    public Character getPlayer()
+    {
+        return _player;
+    }
+
+    public void moveHumanPlayer(int pDirection)
+    {
+        if (playerTurn() && _currentRound < MAX_MOVE)
+        {
+            if (movePlayer(_player, pDirection))
+            {
+                _currentRound += 1;
+                playRound();
+            }
+        }
+    }
+
+    public void endHumanPlayerTurn()
+    {
+        _currentRound = MAX_MOVE;
+        _endTurn = true;
+        playRound();
+    }
+
+    public MapCellTreasure getTreasure()
+    {
+        MapCell ret = _map.getMapElement(_player.GetRow(), _player.GetCol());
+        if (ret instanceof MapCellTreasure)
+        {
+            return (MapCellTreasure) ret;
+        }
+        return null;
+    }
+
+    public void pickTreasure()
+    {
+        _map.removeElement(_player.GetRow(), _player.GetCol());
+        UpdateView();
+    }
+
+    /**
+     * This method moves the current player to four possible new locations which could be up
+     * down, left or right. This method also cause the game view to refresh
+     * @param pDirection is an integer 0: direction up 1: direction down 2: direction left
+     * 3: direction right
+     */
+    private boolean movePlayer(MapCell player, int pDirection)
+    {
+        boolean ret = false;
+        int row = player.GetRow();
+        int col = player.GetCol();
+        if (pDirection == 0) //move up
+        {
+            if (row > 0)
+            {
+                MapCell cell = _map.getMapElement(row - 1, col);
+                if (cell == null || (cell.canOverlap() && player.canOverlap()))
+                {
+                    player.SetRow(row - 1);
+                    if (player != _player)
+                    {
+                        _map.moveElement(row, col, row - 1, col);
+                    }
+                    //UpdateView();
+                    ret = true;
+                }
+            }
+        } else if (pDirection == 1) //move down
+        {
+            if (row < _map.getMapRows() - 1)
+            {
+                MapCell cell = _map.getMapElement(row + 1, col);
+                if (cell == null || (cell.canOverlap() && player.canOverlap()))
+                {
+                    player.SetRow(row + 1);
+                    if (player != _player)
+                    {
+                        _map.moveElement(row, col, row + 1, col);
+                    }
+                    //UpdateView();
+                    ret = true;
+                }
+            }
+        } else if (pDirection == 2) //move left
+        {
+            if (col > 0)
+            {
+                MapCell cell = _map.getMapElement(row, col - 1);
+                if (cell == null || (cell.canOverlap() && player.canOverlap()))
+                {
+                    player.SetCol(col - 1);
+                    if (player != _player)
+                    {
+                        _map.moveElement(row, col, row, col - 1);
+                    }
+                    //UpdateView();
+                    ret = true;
+                }
+            }
+        } else if (pDirection == 3) //move right
+        {
+            if (col < _map.getMapCols() - 1)
+            {
+                MapCell cell = _map.getMapElement(row, col + 1);
+                if (cell == null || (cell.canOverlap() && player.canOverlap()))
+                {
+                    player.SetCol(col + 1);
+                    if (player != _player)
+                    {
+                        _map.moveElement(row, col, row, col + 1);
+                    }
+                    //UpdateView();
+                    ret = true;
+                }
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * This private method update the all the views which binded to this game model.
+     */
+    private void UpdateView()
+    {
+        if (_player.GetRow() == _map.getEndPoint().GetRow() && _player.GetCol() == _map.getEndPoint().GetCol())
+        {
+            _gameOver = true;
+        }
+        this.setChanged();
+        this.notifyObservers();
+    }
+}

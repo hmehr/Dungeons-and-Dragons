@@ -1,0 +1,37 @@
+/**
+ * Boot is a sub type of class Item. One of the items a character can be equipped with during the game.
+ * @author Hamid
+ */
+package Model.Items;
+
+import Model.BodyParts.BodyPart;
+import Model.OutputConsole;
+
+public class Boot extends Mis
+{
+
+    /**
+     * Constructor method for Boot.
+     * @param pName
+     * @param pFileName 
+     */
+    public Boot(String pName, String pFileName)
+    {
+        _fileName = pFileName;
+        _name = pName;
+        OutputConsole.GetOutputConsoleInstance().Write("A Boot was just created.");
+    }
+
+    public Boot()
+    {
+        _name = "Boot";
+    }
+
+    @Override
+    public boolean validateBodyPart(BodyPart pBodyPart)
+    {
+        //TODO put logic here        
+        return true;
+    }
+}
+

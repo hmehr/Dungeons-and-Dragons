@@ -1,0 +1,37 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model.Items;
+
+/**
+ *
+ * @author Ben
+ */
+public abstract class Weapon extends Item
+{
+    boolean _isMelee = false;
+    boolean _isLongRange = false;
+
+    public boolean isIsLongRange()
+    {
+        return _isLongRange;
+    }
+
+    public boolean isIsMelee()
+    {
+        return _isMelee;
+    }
+
+    public void setIsLongRange(boolean _isLongRange)
+    {
+        this._isLongRange = _isLongRange;
+    }
+
+    public void setIsMelee(boolean _isMelee)
+    {
+        this._isMelee = _isMelee;
+    }
+    
+    
+}

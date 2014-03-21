@@ -1,0 +1,1035 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package View.Character;
+
+import Controller.Character.FromTransferHandler;
+import Controller.Character.ToTransferHandler;
+import Model.ArmorType;
+import Model.Character;
+import Model.Items.Armor;
+import Model.Items.Belt;
+import Model.Items.Boot;
+import Model.Items.HealingPotion;
+import Model.Items.Helmet;
+import Model.Items.Item;
+import Model.Items.LongBow;
+import Model.Items.LongSword;
+import Model.Items.Ring;
+import Model.Items.Shield;
+import Model.OutputConsole;
+import javax.swing.DefaultListModel;
+import javax.swing.DropMode;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JToggleButton;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
+
+/**
+ * This class is for view the details of the player in run time and also to
+ * modify characters several properties.
+ * <p>
+ * This is the run time editor for character.
+ * @author m_niza
+ * @since 1.0.0
+ * @version 1.0.0
+  */
+public class CharacterGame extends javax.swing.JFrame
+{
+    Character _character;
+    DefaultListModel _dlmFrom;
+    DefaultListModel _dlmBackpack;   
+    ArmorType _armorType;    
+
+    /**
+     * The constructor will view and modify the character object.
+     * @param pCharacter It takes the reference of the character object
+     */
+    public CharacterGame(Character pCharacter)
+    {
+        initComponents();
+
+        _character = new Character();
+        this._character = pCharacter;
+
+        //Initializing the components with the properties from the referenced
+        //pCharachter object
+        jLabelCharacterName.setText(_character.getName() + " (Level-" +
+                Integer.toString(_character.getLevel()) + ")");
+        jLabelStrength.setText(Integer.toString(_character.getStrength()));
+        jLabelDexterity.setText(Integer.toString(_character.getDexterity()));
+        jLabelConstitution.setText(Integer.toString(_character.getConstitution()));
+        jLabelWisdom.setText(Integer.toString(_character.getWisdom()));
+        jLabelIntelligence.setText(Integer.toString(_character.getIntelligence()));
+        jLabelCharisma.setText(Integer.toString(_character.getCharisma()));
+        jLabelDamgeBonus.setText(Integer.toString(_character.getDamageBonus()));
+        jLabelAttackBonus.setText(Integer.toString(_character.getAttackBonus()));
+        jProgressHitPoints.setValue(_character.getHitPoints());
+        jProgressHitPoints.setStringPainted(true);
+
+        //creating inventory items and body parts
+        _character.createInventoryItems();
+        _character.createBodyParts();
+
+        //Populating list boxes (inventory & backpack) and enable transfer handler.
+        _dlmFrom = _character.getInventoryList();
+        _dlmBackpack = new DefaultListModel();
+        jListInventory.setModel(_dlmFrom);
+        jListInventory.setTransferHandler(new FromTransferHandler(jListInventory, _dlmFrom));
+        jListInventory.setDragEnabled(true);
+        jListInventory.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        jListBackpack.setModel(_dlmBackpack);
+        jListBackpack.setTransferHandler(new ToTransferHandler(TransferHandler.MOVE));
+        jListBackpack.setDropMode(DropMode.INSERT);
+
+        //Creating images dynamically on the JPanel component of the form.
+        ImagePanel panel = new ImagePanel(new ImageIcon("src/View/Resources/GameCharacter.png").getImage());
+        jPanel1.add(panel);
+
+    }
+    
+    /**
+     * This method controls the state of the four armor buttons. When one is pressed,
+     * others toggled and become not selected.
+     * @param pToggleButton It is the reference of the button, which is pressed.
+     */
+    private void armorBtnActvator(JToggleButton pToggleButton)
+    {
+        if (pToggleButton != jToggleBtnLight)
+        {
+            jToggleBtnLight.setEnabled(false);
+        }
+        if (pToggleButton != jToggleBtnMedium)
+        {
+            jToggleBtnMedium.setEnabled(false);
+        }
+        if (pToggleButton != jToggleBtnHeavy)
+        {
+            jToggleBtnHeavy.setEnabled(false);
+        }
+        if (pToggleButton != jToggleBtnShield)
+        {
+            jToggleBtnShield.setEnabled(false);
+        }
+    }
+
+    /**
+     * This method controls the state of the four armor buttons. When one is disselected,
+     * others toggled and become selected.
+     * @param pToggleButton It is the reference of the button, which is pressed.
+     */
+    private void armorBtnDeactvator(JToggleButton pToggleButton)
+    {
+
+        if (pToggleButton != jToggleBtnLight)
+        {
+            jToggleBtnLight.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnMedium)
+        {
+            jToggleBtnMedium.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnHeavy)
+        {
+            jToggleBtnHeavy.setEnabled(true);
+        }
+        if (pToggleButton != jToggleBtnShield)
+        {
+            jToggleBtnShield.setEnabled(true);
+        }
+    }
+
+    /**
+     * This method uses to wear/arm or take-off/unarm an equipment from player.
+     * It updates the inventory and backpack according to the task.
+     * @param pItem takes the reference of the item which will be worn.
+     * @param pToggle references of the button, for which the event has occured.
+     * @param pBodyIndex Index number of that particular body part in the list.
+     */
+    private void wearItemsHandler(Item pItem, JToggleButton pToggle, int pBodyIndex)
+    {
+        if (pToggle.isSelected())
+        {
+            //It checks and matches an Item requested to wear
+            for(int i=0; i<_dlmBackpack.getSize(); i++)
+            {
+                if(_dlmBackpack.getElementAt(i).toString().equalsIgnoreCase(pItem.getName()))
+                {
+                    //wear an item and remove from backpack
+                    _character._bodyArray.get(pBodyIndex).wearItem(pItem);
+                    _dlmBackpack.remove(i);
+                    break;
+                }
+                //If item no available in backpack, show message and toggle the buttons
+                if(i == _dlmBackpack.getSize()-1)
+                {
+                    JOptionPane.showMessageDialog(null, pItem.getName() + " is not available.", "Dungeon & Dragon", 1);
+                    pToggle.setSelected(false);
+                }
+            }
+        }
+        else
+        {
+            //if disarm an item, update the backpack accordingly.
+            if(_character._bodyArray.get(pBodyIndex).isEquiped())
+            {
+                _character._bodyArray.get(pBodyIndex).takeOffItem(pItem);
+                _dlmBackpack.addElement(pItem.getName());
+            }
+        }
+    }
+
+
+
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel9 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jListInventory = new javax.swing.JList();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jListBackpack = new javax.swing.JList();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        jButtonSave = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
+        jToggleBtnLight = new javax.swing.JToggleButton();
+        jToggleBtnMedium = new javax.swing.JToggleButton();
+        jToggleBtnHeavy = new javax.swing.JToggleButton();
+        jToggleBtnShield = new javax.swing.JToggleButton();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jToggleBtnSword = new javax.swing.JToggleButton();
+        jToggleBtnBow = new javax.swing.JToggleButton();
+        jPanel7 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jToggleBtnHelmet = new javax.swing.JToggleButton();
+        jToggleBtnBelt = new javax.swing.JToggleButton();
+        jToggleBtnRing = new javax.swing.JToggleButton();
+        jToggleBtnBoot = new javax.swing.JToggleButton();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jButtonExit = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        jProgressHitPoints = new javax.swing.JProgressBar();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jButtonPotionConsume = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabelStrength = new javax.swing.JLabel();
+        jLabelDexterity = new javax.swing.JLabel();
+        jLabelConstitution = new javax.swing.JLabel();
+        jLabelWisdom = new javax.swing.JLabel();
+        jLabelIntelligence = new javax.swing.JLabel();
+        jLabelCharisma = new javax.swing.JLabel();
+        jLabelCharacterName = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabelDamgeBonus = new javax.swing.JLabel();
+        jLabelAttackBonus = new javax.swing.JLabel();
+
+        setTitle("Player Details"); // NOI18N
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setResizable(false);
+
+        jPanel9.setBorder(javax.swing.BorderFactory.createTitledBorder("Load Backpack"));
+
+        jScrollPane1.setViewportView(jListInventory);
+
+        jListBackpack.setDragEnabled(true);
+        jListBackpack.setDropMode(javax.swing.DropMode.INSERT);
+        jScrollPane2.setViewportView(jListBackpack);
+
+        jLabel19.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel19.setText("Inventory Items");
+
+        jLabel20.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel20.setText("Load Backpack");
+
+        jButtonSave.setText("Load");
+        jButtonSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSaveActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel19)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addGap(25, 25, 25)
+                        .addComponent(jLabel20))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButtonSave)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel9Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jScrollPane1, jScrollPane2});
+
+        jPanel9Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel19, jLabel20});
+
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel20)
+                    .addComponent(jLabel19))
+                .addGap(8, 8, 8)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane2)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonSave)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 264, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 367, Short.MAX_VALUE)
+        );
+
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Defence/Armor"));
+
+        jToggleBtnLight.setText("Light");
+        jToggleBtnLight.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnLightActionPerformed(evt);
+            }
+        });
+        jToggleBtnLight.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jToggleBtnLightKeyPressed(evt);
+            }
+        });
+
+        jToggleBtnMedium.setText("Medium");
+        jToggleBtnMedium.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnMediumActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnHeavy.setText("Heavy");
+        jToggleBtnHeavy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnHeavyActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnShield.setText("Shield");
+        jToggleBtnShield.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnShieldActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(38, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jToggleBtnHeavy)
+                    .addComponent(jToggleBtnLight))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jToggleBtnMedium)
+                    .addComponent(jToggleBtnShield))
+                .addGap(35, 35, 35))
+        );
+
+        jPanel5Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jToggleBtnHeavy, jToggleBtnLight, jToggleBtnMedium, jToggleBtnShield});
+
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jToggleBtnLight)
+                    .addComponent(jToggleBtnMedium))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jToggleBtnHeavy)
+                    .addComponent(jToggleBtnShield))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Weapons"));
+
+        jLabel7.setText("Long Sword: ");
+
+        jLabel8.setText("Long Bow: ");
+
+        jToggleBtnSword.setText("Activate");
+        jToggleBtnSword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnSwordActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnBow.setText("Activate");
+        jToggleBtnBow.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnBowActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel8))
+                .addGap(28, 28, 28)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jToggleBtnBow)
+                    .addComponent(jToggleBtnSword))
+                .addContainerGap(47, Short.MAX_VALUE))
+        );
+
+        jPanel6Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jToggleBtnBow, jToggleBtnSword});
+
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(jToggleBtnSword))
+                .addGap(20, 20, 20)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8)
+                    .addComponent(jToggleBtnBow))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("Miscellaneous"));
+
+        jLabel6.setText("Helmet: ");
+
+        jToggleBtnHelmet.setText("Activate");
+        jToggleBtnHelmet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnHelmetActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnBelt.setText("Activate");
+        jToggleBtnBelt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnBeltActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnRing.setText("Activate");
+        jToggleBtnRing.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnRingActionPerformed(evt);
+            }
+        });
+
+        jToggleBtnBoot.setText("Activate");
+        jToggleBtnBoot.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleBtnBootActionPerformed(evt);
+            }
+        });
+
+        jLabel9.setText("Belt: ");
+
+        jLabel10.setText("Ring: ");
+
+        jLabel11.setText("Boot: ");
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel10))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jToggleBtnRing)
+                    .addComponent(jToggleBtnHelmet)
+                    .addComponent(jToggleBtnBelt)
+                    .addComponent(jToggleBtnBoot))
+                .addGap(42, 42, 42))
+        );
+
+        jPanel7Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel10, jLabel11, jLabel6, jLabel9});
+
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel6)
+                    .addComponent(jToggleBtnHelmet))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel9)
+                    .addComponent(jToggleBtnBelt))
+                .addGap(7, 7, 7)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel10)
+                    .addComponent(jToggleBtnRing))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel11)
+                    .addComponent(jToggleBtnBoot))
+                .addContainerGap())
+        );
+
+        jButtonExit.setText("Save and Exit");
+        jButtonExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonExitActionPerformed(evt);
+            }
+        });
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Hit Points and Damage Bonus"));
+
+        jLabel2.setText("Hit Point: ");
+
+        jLabel17.setText("Healing potion: ");
+
+        jButtonPotionConsume.setText("Consume");
+        jButtonPotionConsume.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPotionConsumeActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jProgressHitPoints, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel17)
+                        .addGap(29, 29, 29)
+                        .addComponent(jButtonPotionConsume)))
+                .addContainerGap(5, Short.MAX_VALUE))
+        );
+
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel17, jLabel2});
+
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jProgressHitPoints, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel17)
+                            .addComponent(jButtonPotionConsume))))
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Ability Scores"));
+
+        jLabel3.setText("Strength: ");
+
+        jLabel4.setText("Dexterity: ");
+
+        jLabel5.setText("Constitution: ");
+
+        jLabel12.setText("Wisdom: ");
+
+        jLabel13.setText("Intelligence:  ");
+
+        jLabel14.setText("Charisma: ");
+
+        jLabelStrength.setText("jLabel15");
+
+        jLabelDexterity.setText("jLabel15");
+
+        jLabelConstitution.setText("jLabel15");
+
+        jLabelWisdom.setText("jLabel15");
+
+        jLabelIntelligence.setText("jLabel15");
+
+        jLabelCharisma.setText("jLabel15");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(38, 38, 38)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelStrength)
+                    .addComponent(jLabelDexterity)
+                    .addComponent(jLabelConstitution)
+                    .addComponent(jLabelWisdom)
+                    .addComponent(jLabelIntelligence)
+                    .addComponent(jLabelCharisma))
+                .addContainerGap(66, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabelStrength))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabelDexterity))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabelConstitution))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabelWisdom))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel13)
+                    .addComponent(jLabelIntelligence))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel14)
+                    .addComponent(jLabelCharisma))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jLabelCharacterName.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelCharacterName.setText("Character Name");
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Bonus"));
+
+        jLabel15.setText("Attack Bonus: ");
+
+        jLabel1.setText("Damage Bonus: ");
+
+        jLabelDamgeBonus.setText("0");
+
+        jLabelAttackBonus.setText("0");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel15)
+                    .addComponent(jLabel1))
+                .addGap(48, 48, 48)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelAttackBonus)
+                    .addComponent(jLabelDamgeBonus, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(79, Short.MAX_VALUE))
+        );
+
+        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabelAttackBonus, jLabelDamgeBonus});
+
+        jPanel4Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel1, jLabel15});
+
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel15)
+                    .addComponent(jLabelAttackBonus))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelDamgeBonus, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addContainerGap(15, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabelCharacterName, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(77, 77, 77)
+                                .addComponent(jButtonExit))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jPanel2, 0, 233, Short.MAX_VALUE)
+                                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(293, 293, 293)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(19, 19, 19))
+        );
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabelCharacterName, jPanel1});
+
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabelCharacterName, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(11, 11, 11)
+                                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonExit))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(25, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * @param evt Passing the event for the JButtonSave to update backpack and
+     * Inventory.
+     */
+    private void jButtonSaveActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonSaveActionPerformed
+    {//GEN-HEADEREND:event_jButtonSaveActionPerformed
+        ListModel model = jListInventory.getModel();
+        boolean deleteFlag = true;
+        /**
+         * Checks each of the items in the inventory, which were moved to the backpack
+         * from inventory and update the list for those.
+         */
+
+        for(int i = 0; i<_character.getInventroyItem().size(); i++)
+        {
+            for(int x = 0; x < model.getSize(); x++)
+            {
+                if(_character.getInventroyItem().get(i).getName().equalsIgnoreCase(model.getElementAt(x).toString()))
+                {
+                    deleteFlag = false;
+                    break;
+                }
+                else
+                {
+                    deleteFlag = true;
+                }
+            }            
+            if(deleteFlag == true)
+            {
+                _character.addBackpackItems(_character.getInventroyItem().get(i));
+                _character.getInventroyItem().remove(i);                
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, "Inventory and Backpack updated.", "Dungeon & Dragon", 1);
+    }//GEN-LAST:event_jButtonSaveActionPerformed
+
+    /**
+     * This method not used in this version.
+     * @param evt Passing the event for the JToggleButton key pressed
+     */
+    private void jToggleBtnLightKeyPressed(java.awt.event.KeyEvent evt)//GEN-FIRST:event_jToggleBtnLightKeyPressed
+    {//GEN-HEADEREND:event_jToggleBtnLightKeyPressed
+        // TODO add your handling code here:        
+    }//GEN-LAST:event_jToggleBtnLightKeyPressed
+
+    /**
+     * Enables or disables the Light Armor.
+     * @param evt Passing the event for the JToggleButton key event action
+     */
+    private void jToggleBtnLightActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnLightActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnLightActionPerformed
+
+        Armor armor_light = new Armor(_armorType.LIGHT);
+
+        wearItemsHandler(armor_light, jToggleBtnLight, 1);
+
+        if (jToggleBtnLight.isSelected())
+        {
+            armorBtnActvator(jToggleBtnLight);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnLight);
+        }
+    }//GEN-LAST:event_jToggleBtnLightActionPerformed
+
+    // Enables or disables the Medium Armor.
+    private void jToggleBtnMediumActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnMediumActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnMediumActionPerformed
+        Armor armor_medium = new Armor(_armorType.MEDIUM);
+        wearItemsHandler(armor_medium, jToggleBtnMedium, 1);
+
+        if (jToggleBtnMedium.isSelected())
+        {
+            armorBtnActvator(jToggleBtnMedium);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnMedium);
+        }
+    }//GEN-LAST:event_jToggleBtnMediumActionPerformed
+
+    //Enables or disables the heavy Armor.
+    private void jToggleBtnHeavyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnHeavyActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnHeavyActionPerformed
+        Armor armor_heavy = new Armor(_armorType.HEAVY);
+
+        wearItemsHandler(armor_heavy, jToggleBtnHeavy, 1);
+
+        if (jToggleBtnHeavy.isSelected())
+        {
+            armorBtnActvator(jToggleBtnHeavy);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnHeavy);
+        }
+    }//GEN-LAST:event_jToggleBtnHeavyActionPerformed
+
+    //Enables or disables the Shield.
+    private void jToggleBtnShieldActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnShieldActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnShieldActionPerformed
+        Shield shield = new Shield();
+        wearItemsHandler(shield, jToggleBtnShield, 1);
+
+        if (jToggleBtnShield.isSelected())
+        {
+            armorBtnActvator(jToggleBtnShield);
+        }
+        else
+        {
+            armorBtnDeactvator(jToggleBtnShield);
+        }
+    }//GEN-LAST:event_jToggleBtnShieldActionPerformed
+
+    //Armed and disarmed the weapon sword.
+    private void jToggleBtnSwordActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnSwordActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnSwordActionPerformed
+        LongSword ls = new LongSword();
+        wearItemsHandler(ls, jToggleBtnSword, 3);
+    }//GEN-LAST:event_jToggleBtnSwordActionPerformed
+
+    //Armed and disarmed the weapon Bow
+    private void jToggleBtnBowActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnBowActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnBowActionPerformed
+        LongBow lb = new LongBow();
+        wearItemsHandler(lb, jToggleBtnBow, 2);
+    }//GEN-LAST:event_jToggleBtnBowActionPerformed
+
+    //Enables or disables the helmet
+    private void jToggleBtnHelmetActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnHelmetActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnHelmetActionPerformed
+        Helmet helmet = new Helmet();
+        wearItemsHandler(helmet, jToggleBtnHelmet, 0);
+    }//GEN-LAST:event_jToggleBtnHelmetActionPerformed
+
+    //Enables or disables the Belt
+    private void jToggleBtnBeltActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnBeltActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnBeltActionPerformed
+        Belt belt = new Belt();
+        wearItemsHandler(belt, jToggleBtnBelt, 5);
+    }//GEN-LAST:event_jToggleBtnBeltActionPerformed
+
+    //Enables or disables the Ring
+    private void jToggleBtnRingActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnRingActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnRingActionPerformed
+        Ring ring = new Ring();
+        wearItemsHandler(ring, jToggleBtnRing, 4);
+    }//GEN-LAST:event_jToggleBtnRingActionPerformed
+
+    //Enables or disables the Boot
+    private void jToggleBtnBootActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jToggleBtnBootActionPerformed
+    {//GEN-HEADEREND:event_jToggleBtnBootActionPerformed
+        Boot ls = new Boot();
+        wearItemsHandler(ls, jToggleBtnBoot, 6);
+    }//GEN-LAST:event_jToggleBtnBootActionPerformed
+
+    //Exit from the editor
+    private void jButtonExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonExitActionPerformed
+    {//GEN-HEADEREND:event_jButtonExitActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_jButtonExitActionPerformed
+
+    //Method for consuming healing potion
+    private void jButtonPotionConsumeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButtonPotionConsumeActionPerformed
+    {//GEN-HEADEREND:event_jButtonPotionConsumeActionPerformed
+        HealingPotion hp = new HealingPotion();
+
+        //checks the backpack
+        for(int i=0; i<_dlmBackpack.getSize(); i++)
+        {
+            //if potion is in the inventory and hit point less than 100, then will be consumed
+            if(_dlmBackpack.getElementAt(i).toString().equalsIgnoreCase(hp.getName()))
+            {
+                if(_character.getHitPoints() < 100)
+                {
+                    //Increase the hit points
+                    _character.setHitPoints(_character.getHitPoints()+ _character.getHealingPotion());
+                    jProgressHitPoints.setValue(_character.getHitPoints() + _character.getHealingPotion());
+                    _dlmBackpack.remove(i);
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "Healing Potion can not be consumed.", "Dungeon & Dragon", 1);
+                }
+
+                break;
+            }
+            //show message if potion is not available in the backpack
+            if(i == _dlmBackpack.getSize()-1)
+            {
+                JOptionPane.showMessageDialog(null, hp.getName() + " is not available.", "Dungeon & Dragon", 1);                
+            }
+        }
+    }//GEN-LAST:event_jButtonPotionConsumeActionPerformed
+
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonExit;
+    private javax.swing.JButton jButtonPotionConsume;
+    private javax.swing.JButton jButtonSave;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelAttackBonus;
+    private javax.swing.JLabel jLabelCharacterName;
+    private javax.swing.JLabel jLabelCharisma;
+    private javax.swing.JLabel jLabelConstitution;
+    private javax.swing.JLabel jLabelDamgeBonus;
+    private javax.swing.JLabel jLabelDexterity;
+    private javax.swing.JLabel jLabelIntelligence;
+    private javax.swing.JLabel jLabelStrength;
+    private javax.swing.JLabel jLabelWisdom;
+    private javax.swing.JList jListBackpack;
+    private javax.swing.JList jListInventory;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel9;
+    private javax.swing.JProgressBar jProgressHitPoints;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JToggleButton jToggleBtnBelt;
+    private javax.swing.JToggleButton jToggleBtnBoot;
+    private javax.swing.JToggleButton jToggleBtnBow;
+    private javax.swing.JToggleButton jToggleBtnHeavy;
+    private javax.swing.JToggleButton jToggleBtnHelmet;
+    private javax.swing.JToggleButton jToggleBtnLight;
+    private javax.swing.JToggleButton jToggleBtnMedium;
+    private javax.swing.JToggleButton jToggleBtnRing;
+    private javax.swing.JToggleButton jToggleBtnShield;
+    private javax.swing.JToggleButton jToggleBtnSword;
+    // End of variables declaration//GEN-END:variables
+}

@@ -1,0 +1,38 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model.Map;
+
+
+/**
+ * This is a map cell wall class.
+ * It inherit map cell.
+ * To set the wall element in the map.
+ * With the row and column, set the wall in the demanded cell.
+ * 
+ * @author yukywang
+ */
+public class MapCellWall extends MapCell
+{
+
+    public MapCellWall(int pRow, int pCol, String pDescription, String pImageFile)
+    {
+        _row = pRow;
+        _col = pCol;
+        _imageName = pImageFile;
+        _description = pDescription;
+    }
+
+    public MapCellWall(String pDescription, String pImageFile)
+    {
+        _imageName = pImageFile;
+        _description = pDescription;
+    }
+
+    @Override
+    public boolean canOverlap()
+    {
+        return false;
+    }
+}

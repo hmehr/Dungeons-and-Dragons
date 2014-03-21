@@ -1,0 +1,48 @@
+/**
+ * LongSword is a sub type of class Weapon. One of the items a character can be equipped with during the game.
+ * @author Hamid
+ */
+package Model.Items;
+
+import Model.BodyParts.BodyPart;
+import Model.OutputConsole;
+
+public class LongSword extends Weapon
+{
+
+    /**
+     * Constructor method for LongSword.
+     * @param pName Name of the LongSword
+     * @param pFileName Name of the image file name used for it
+     * @Author Hamid 
+     */
+    public LongSword(String pName, String pFileName)
+    {
+        _fileName = pFileName;
+        _name = pName;
+        OutputConsole.GetOutputConsoleInstance().Write("A LongSword was just created.");
+    }
+
+    /**
+     * Default constructor.
+     */
+    public LongSword()
+    {
+        _name = "LongSword";
+    }
+
+    /**
+     * Validates the body part with the corresponding item
+     * 
+     * @param pBodyPart The body part to be validated.
+     * @return True if the body part is validated.
+     * @Author Fahim
+     */
+    @Override
+    public boolean validateBodyPart(BodyPart pBodyPart)
+    {
+        //TODO put logic here        
+        return true;
+    }
+}
+

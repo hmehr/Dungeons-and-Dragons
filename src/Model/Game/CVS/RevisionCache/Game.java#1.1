@@ -1,0 +1,108 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model.Game;
+
+import Model.Map.Map;
+import Model.Character;
+import Model.Map.MapCell;
+import Model.Map.MapCellMonster;
+import java.util.Observable;
+
+/**
+ *
+ * @author eric
+ */
+public class Game extends Observable
+{
+
+    private Map _map = null;
+    private Character _player = null;
+    private boolean _gameOver = false;
+
+    public Game(Character pPlayer, Map pMap)
+    {
+        _player = pPlayer;
+        _map = pMap;
+        _player.SetRow(pMap.getStartPoint().GetRow());
+        _player.SetCol(pMap.getStartPoint().GetCol());
+    }
+
+    public boolean isGameOver()
+    {
+        return _gameOver;
+    }
+
+    public Map getMap()
+    {
+        return _map;
+    }
+
+    public Character getPlayer()
+    {
+        return _player;
+    }
+
+    public void movePlayer(int pDirection)
+    {
+        int row = _player.GetRow();
+        int col = _player.GetCol();
+        if (pDirection == 0) //move up
+        {
+            if (row > 0)
+            {
+                MapCell cell = _map.getMapElement(row - 1, col);
+                if (cell == null || cell.canOverlap())
+                {
+                    _player.SetRow(row - 1);
+                    UpdateView();
+                }
+            }
+        } else if (pDirection == 1) //move down
+        {
+            if (row < _map.getMapRows() - 1)
+            {
+                MapCell cell = _map.getMapElement(row + 1, col);
+                if (cell == null || cell.canOverlap())
+                {
+                    _player.SetRow(row + 1);
+                    UpdateView();
+                }
+            }
+        } else if (pDirection == 2) //move left
+        {
+            if (col > 0)
+            {
+                MapCell cell = _map.getMapElement(row, col - 1);
+                if (cell == null || cell.canOverlap())
+                {
+                    _player.SetCol(col - 1);
+                    UpdateView();
+                }
+            }
+        } else if (pDirection == 3) //move right
+        {
+            if (col < _map.getMapCols() - 1)
+            {
+                MapCell cell = _map.getMapElement(row, col + 1);
+                if (cell == null || cell.canOverlap())
+                {
+                    _player.SetCol(col + 1);
+                    UpdateView();
+                }
+            }
+        }
+
+    }
+
+    private void UpdateView()
+    {
+        if (_player.GetRow() == _map.getEndPoint().GetRow() && _player.GetCol() == _map.getEndPoint().GetCol())
+        {
+            _gameOver = true;
+        }
+        this.setChanged();
+        this.notifyObservers();
+    }
+}

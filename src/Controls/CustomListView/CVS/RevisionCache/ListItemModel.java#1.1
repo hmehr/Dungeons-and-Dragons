@@ -1,0 +1,56 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Controls.CustomListView;
+
+/**
+ *
+ * @author eric
+ */
+
+/**
+ *@author yuki 
+ * 
+ */
+ 
+import Model.Map.MapCell;
+import javax.swing.*;
+import javax.swing.event.*;
+
+public class ListItemModel implements ListModel
+{
+
+    private MapCell[] m_Collection = null;
+    public ListItemModel(MapCell[] pCollection)
+    {
+        this.m_Collection = pCollection;
+    }
+    
+    @Override
+    public Object getElementAt(int index)
+    {
+        Object ret = null;
+        if (index < m_Collection.length)
+        {
+            ret = m_Collection[index];
+        }
+        return ret;
+    }
+
+    @Override
+    public int getSize()
+    {
+        return (m_Collection.length);
+    }
+
+    @Override
+    public void addListDataListener(ListDataListener l)
+    {
+    }
+
+    @Override
+    public void removeListDataListener(ListDataListener l)
+    {
+    }
+}

@@ -1,0 +1,37 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model.Map;
+
+
+/**
+ * This is a map cell treasure class.
+ * It inherit map cell.
+ * To set the treasure in the map.
+ * According to the row and column, put the treasure in the demanded cell.
+ * 
+ * @author yukywang
+ */
+public class MapCellTreasure extends MapCell
+{
+    public MapCellTreasure(int pRow, int pCol, String pDescription, String pImageFile)
+    {
+        _row = pRow;
+        _col = pCol;
+        _imageName = pImageFile;
+        _description = pDescription;
+    }
+
+    public MapCellTreasure(String pDescription, String pImageFile)
+    {
+        _imageName = pImageFile;
+        _description = pDescription;
+    }
+
+    @Override
+    public boolean canOverlap()
+    {
+        return true;
+    }
+}

@@ -1,0 +1,84 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model.Map;
+import Model.Character;
+import Model.CharacterBuilder;
+import Model.CharacterBuilderMonster;
+import Model.CharacterDirector;
+/**
+ *
+ * @author eric
+ */
+public class MapBuilderConcrete implements MapBuilderBase
+{
+    private int _level;
+    private Map _map;
+    public MapBuilderConcrete(int pLevel,Map pMap)
+    {
+        _level = pLevel;
+        _map = pMap;
+    }
+    
+    public void build()
+    {
+        buildTreasure();
+        buildMonster();
+    }
+    
+    public void buildTreasure()
+    {
+        int cols = _map.getMapCols();
+        int rows = _map.getMapRows();
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < cols; col++)
+            {
+                MapCell cell = _map.getMapElement(row, col);
+                if(cell instanceof MapCellTreasure)
+                {
+                    MapCellTreasure treasure = (MapCellTreasure)cell;
+                    treasure.generateTreasure(_level);
+                }
+            }
+                
+        }
+    }
+    public void buildMonster()
+    {
+        int index = 0;
+        int cols = _map.getMapCols();
+        int rows = _map.getMapRows();
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < cols; col++)
+            {
+                MapCell cell = _map.getMapElement(row, col);
+                if(cell instanceof MapCellMonster)
+                {
+                    /*
+                    MapCellMonster monster = (MapCellMonster)cell;
+                    monster.setLevel(_level);
+                    monster.setDescription(monster.getDescription() + Integer.toString(index));
+                    index += 1;*/
+                    
+                    CharacterBuilder characterBuilder = new CharacterBuilderMonster();
+                    CharacterDirector cd = new CharacterDirector(characterBuilder, cell.getDescription()+ Integer.toString(index) , cell.getImageName(), _level);
+                    cd.constructCharacter();
+                    cd.getCharacter().SetRow(cell.GetRow());
+                    cd.getCharacter().SetCol(cell.GetCol());
+                    cd.getCharacter().setImage(cell.getImageName());
+                    cd.getCharacter().setDescription(cell.getDescription()+ Integer.toString(index));
+                    _map.setMapElement(cd.getCharacter());
+                    index += 1; 
+                }
+            }
+        }
+    }
+    public Map getMap()
+    {
+        return _map;
+    }
+    
+}

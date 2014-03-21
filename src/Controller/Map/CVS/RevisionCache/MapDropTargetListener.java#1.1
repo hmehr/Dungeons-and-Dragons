@@ -1,0 +1,92 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Controller.Map;
+
+import Model.Map.Map;
+import Model.Map.MapCell;
+import View.Map.MapItemView;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+
+
+/**
+ *
+ * @author eric
+ */
+public class MapDropTargetListener implements DropTargetListener
+{
+
+    private Map m_Map = null;
+    private MapItemView m_MapElementView = null;
+
+    public MapDropTargetListener(Map pMapModel, MapItemView pElementView)
+    {
+        m_Map = pMapModel;
+        m_MapElementView = pElementView;
+    }
+
+    public void drop(DropTargetDropEvent dtde)
+    {
+        DataFlavor dragAndDropPanelFlavor = null;
+        Object transferableObj = null;
+        Transferable transferable = null;
+        try
+        {
+            // Grab expected flavor
+            dragAndDropPanelFlavor = MapItemView.getDragAndDropPanelDataFlavor();
+            transferable = dtde.getTransferable();
+            // What does the Transferable support
+            if (transferable.isDataFlavorSupported(dragAndDropPanelFlavor))
+            {
+                transferableObj = transferable.getTransferData(dragAndDropPanelFlavor);
+                MapItemView droppedPanel = (MapItemView) transferableObj;
+                if (droppedPanel != null)
+                {
+                    if (droppedPanel.getRow() != m_MapElementView.getRow() || droppedPanel.getCol() != m_MapElementView.getCol())
+                    {
+                        m_Map.moveMapElement(droppedPanel.getRow(), droppedPanel.getCol(), m_MapElementView.getRow(), m_MapElementView.getCol());
+                    }
+                }
+            }
+
+            dragAndDropPanelFlavor = MapCell.getDragAndDropPanelDataFlavor();
+            transferable = dtde.getTransferable();
+            if (transferable.isDataFlavorSupported(dragAndDropPanelFlavor))
+            {
+                transferableObj = transferable.getTransferData(dragAndDropPanelFlavor);
+                MapCell droppedData = (MapCell) transferableObj;
+                if (droppedData != null)
+                {
+                   //MapItemModel mapElementMode = new MapItemModel(m_MapElementView.getRow(), m_MapElementView.getCol(), droppedData.getDescription(), droppedData.getImageName());
+                   droppedData.SetCol(m_MapElementView.getCol());
+                   droppedData.SetRow(m_MapElementView.getRow());
+                    m_Map.addMapElement(droppedData);
+                }
+            }
+        } catch (Exception ex)
+        { /* nope, not the place */ }
+        // If didn't find an item, bail
+    }
+
+    public void dragEnter(DropTargetDragEvent dtde)
+    {
+    }
+
+    public void dragOver(DropTargetDragEvent dtde)
+    {
+    }
+
+    public void dropActionChanged(DropTargetDragEvent dtde)
+    {
+    }
+
+    public void dragExit(DropTargetEvent dte)
+    {
+    }
+}

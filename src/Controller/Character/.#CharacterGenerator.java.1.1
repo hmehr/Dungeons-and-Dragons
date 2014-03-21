@@ -1,0 +1,116 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Controller.Character;
+
+import View.Character.CharacterJFrame;
+
+/**
+ *
+ * @author m_niza
+ */
+public class CharacterGenerator
+{
+
+    Model.Character model;
+    CharacterJFrame view;
+
+    public CharacterGenerator(Model.Character model)
+    {
+        this.model = model;
+        //this.view = new CharacterJFrame(this, model);
+        view.createEditor();
+
+
+    }
+
+    public void setStrength(String strength)
+    {
+        try
+        {
+            model.setStrength(Integer.parseInt(strength));
+        } catch (Exception e)
+        {
+            model.setStrength(8);
+        }
+    }
+
+    public void setDexterity(String dexterity)
+    {
+        try
+        {
+            model.setDexterity(Integer.parseInt(dexterity));
+        } catch (Exception e)
+        {
+            model.setDexterity(8);
+        }
+    }
+
+    public void setConstitution(String constitution)
+    {
+        try
+        {
+            model.setConstitution(Integer.parseInt(constitution));
+        } catch (Exception e)
+        {
+            model.setConstitution(8);
+        }
+    }
+
+    public void setIntelligence(String intelligence)
+    {
+        try
+        {
+            model.setIntelligence(Integer.parseInt(intelligence));
+        } catch (Exception e)
+        {
+            model.setIntelligence(8);
+        }
+    }
+
+    public void setWisdom(String wisdom)
+    {
+        try
+        {
+            model.setWisdom(Integer.parseInt(wisdom));
+        } catch (Exception e)
+        {
+            model.setWisdom(8);
+        }
+    }
+
+    public void setCharisma(String charisma)
+    {
+        try
+        {
+            model.setCharisma(Integer.parseInt(charisma));
+        } catch (Exception e)
+        {
+            model.setCharisma(8);
+        }
+    }
+
+    public void setName(String name)
+    {
+        try
+        {
+            model.setName(name);
+        } catch (Exception e)
+        {
+            model.setName("Alan");
+        }
+    }
+    
+    public void setAvatar(String path)
+    {
+        try
+        {
+            model.setAvatar(path);
+        }
+        catch (Exception e)
+        {
+            model.setAvatar("");
+        }
+    }
+}

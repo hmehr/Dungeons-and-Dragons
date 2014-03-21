@@ -1,0 +1,56 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Controller.Character;
+
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.TransferHandler;
+
+/**
+ *
+ * @author Sayid
+ */
+public class FromTransferHandler extends TransferHandler
+{
+
+    private JList dragFrom;
+    private DefaultListModel from;
+
+    public FromTransferHandler(JList dragFrom, DefaultListModel from)
+    {
+        this.dragFrom = dragFrom;
+        this.from = from;
+    }
+
+    public int getSourceActions(JComponent comp)
+    {
+        return COPY_OR_MOVE;
+    }
+    private int index = 0;
+
+    public Transferable createTransferable(JComponent comp)
+    {
+        index = dragFrom.getSelectedIndex();
+        if (index < 0 || index >= from.getSize())
+        {
+            return null;
+        }
+
+        return new StringSelection((String) dragFrom.getSelectedValue());
+    }
+
+    public void exportDone(JComponent comp, Transferable trans, int action)
+    {
+        if (action != MOVE)
+        {
+            return;
+        }
+
+        from.removeElementAt(index);
+    }
+}

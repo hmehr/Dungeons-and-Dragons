@@ -1,0 +1,160 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Model;
+
+import Model.BodyParts.BodyPart;
+import Model.Items.Item;
+import Model.Map.MapCell;
+import View.Observer;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author Ben
+ */
+public class Character extends MapCell implements Observable
+{   
+    int _level;
+    int _hitPoints;
+    //Ability scores
+    int _strength;
+    int _dexterity;
+    int _constitution;
+    int _wisdom;
+    int _intelligence;
+    int _charisma;
+    
+    int _modifier;
+    int _damageBonus;
+    String _name;
+    String _avatar;
+
+    ArrayList<BodyPart> _body;
+    ArrayList<Item> _backPack;
+    ArrayList observers = new ArrayList();
+    
+    int getAttackBonus()
+    {
+        //TODO add logic here;
+        return 0;
+    }
+
+    public String getName()
+    {
+        return _name;
+    }
+
+    public String getAvatar()
+    {
+        return _avatar;
+    }
+
+    public void setAvatar(String _avatar)
+    {
+        this._avatar = _avatar;
+    }
+
+    public void setCharisma(int _charisma)
+    {
+        this._charisma = _charisma;
+    }
+
+    public int getCharisma()
+    {
+        return _charisma;
+    }
+
+    public int getConstitution()
+    {
+        return _constitution;
+    }
+
+    public int getDexterity()
+    {
+        return _dexterity;
+    }
+
+    public int getIntelligence()
+    {
+        return _intelligence;
+    }
+
+    public int getStrength()
+    {
+        return _strength;
+    }
+
+    public int getWisdom()
+    {
+        return _wisdom;
+    }
+
+    public void setConstitution(int _constitution)
+    {
+        this._constitution = _constitution;
+    }
+
+    public void setDexterity(int _dexterity)
+    {
+        this._dexterity = _dexterity;
+    }
+
+    public void setIntelligence(int _intelligence)
+    {
+        this._intelligence = _intelligence;
+    }
+
+    public void setName(String _name)
+    {
+        this._name = _name;
+    }
+
+    public void setStrength(int _strength)
+    {
+        this._strength = _strength;
+    }
+
+    public void setWisdom(int _wisdom)
+    {
+        this._wisdom = _wisdom;
+    }
+
+
+    void Add()
+    {
+        //TODO add logic here;
+    }
+    void createBodyParts()
+    {
+        //TODO add logic here;
+    }
+    
+    @Override
+    public boolean canOverlap()
+    {
+        return true;
+    }
+
+    public void notifyObservers()
+    {
+        for ( int i=0; i< observers.size(); i++)
+        {
+            Observer o = (Observer)observers.get(i);
+            o.update();
+        }
+    }
+
+    public void registerObserver(Observer o)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void removeObserver(Observer o)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    
+}

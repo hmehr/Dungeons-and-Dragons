@@ -1,0 +1,45 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Controls.CustomListView;
+
+/**
+ *
+ * @author eric
+ */
+import javax.swing.*;
+import java.awt.*;
+import java.util.*;
+import Model.Map.MapCell;
+import View.Map.MapItemView;
+
+public class ListItemRender extends DefaultListCellRenderer
+{
+
+    public Component getListCellRendererComponent(JList list,
+            Object value,
+            int index,
+            boolean isSelected,
+            boolean hasFocus)
+    {
+        JLabel label =
+                (JLabel) super.getListCellRendererComponent(list,
+                value,
+                index,
+                isSelected,
+                hasFocus);
+        if (value instanceof MapCell)
+        {
+            MapCell itemModel = (MapCell) value;
+            java.net.URL imageURL = MapItemView.class.getResource(itemModel.getImageName());
+            ImageIcon icon = new ImageIcon(imageURL);
+            label.setIcon(icon);
+        } else
+        {
+            // Clear old icon; needed in 1st release of JDK 1.2
+            label.setIcon(null);
+        }
+        return (label);
+    }
+}

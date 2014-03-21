@@ -1,0 +1,163 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package View.Game;
+
+import Model.Game.Game;
+import Model.Map.MapCell;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.geom.Line2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+/**
+ *
+ * @author eric
+ */
+public class GameView extends JPanel implements Observer, KeyListener
+{
+
+    private Game _game = null;
+
+    public GameView(Game pGame)
+    {
+        _game = pGame;
+        addKeyListener(this);
+    }
+
+    public void update(Observable pOb, Object pArg)
+    {
+        this.repaint();
+        if(_game.isGameOver())
+        {
+            JOptionPane.showMessageDialog(this, "Game Over And You Win", "Finish", JOptionPane.DEFAULT_OPTION);
+            System.exit(0);
+        }
+    }
+
+    @Override
+    public void paintComponent(Graphics g)
+    {
+        // fill with the color you want
+        int wide = getWidth();
+        int tall = getHeight();
+        int cols = _game.getMap().getMapCols();
+        int rows = _game.getMap().getMapRows();
+        g.setColor(Color.white);
+        g.fillRect(0, 0, wide, tall);
+
+        // go into Graphics2D for all the fine art, more options
+        // optional, here I just get variable Stroke sizes
+        Graphics2D g2 = (Graphics2D) g;
+        int w = wide / cols;
+        int h = tall / rows;
+        g2.setColor(Color.cyan);
+
+        g2.setStroke(new BasicStroke(1));
+        // the verticles
+        for (int i = 1; i < cols; i++)
+        {
+            g2.drawLine(i * w, 0, i * w, tall);
+        }
+        // the horizontals
+        for (int i = 1; i < rows; i++)
+        {
+            g2.drawLine(0, i * h, wide, i * h);
+        }
+
+        boolean overlap = false;
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < cols; col++)
+            {
+                MapCell cell = _game.getMap().getMapElement(row, col);
+                if (cell != null)
+                {
+                    if (cell.GetRow() == _game.getPlayer().GetRow() && cell.GetCol() == _game.getPlayer().GetCol())
+                    {
+                        try
+                        {
+
+                            java.net.URL cellImageURL = GameView.class.getResource(cell.getImageName());
+                            BufferedImage cellImg = ImageIO.read(cellImageURL);
+                            g2.drawImage(cellImg, col * w + 2, row * h + 2, (w - 4) / 2, (h - 4) / 2, this);
+
+                            java.net.URL playerImageURL = GameView.class.getResource(_game.getPlayer().getImageName());
+                            BufferedImage playerImg = ImageIO.read(playerImageURL);
+                            g2.drawImage(playerImg, col * w + 2 + (w - 4) / 2, row * h + 2 + (h - 4) / 2, (w - 4) / 2, (h - 4) / 2, this);
+
+                            overlap = true;
+
+                        } catch (IOException e)
+                        {
+                        }
+                    } else
+                    {
+                        try
+                        {
+
+                            java.net.URL imageURL = GameView.class.getResource(cell.getImageName());
+                            BufferedImage img = ImageIO.read(imageURL);
+                            g2.drawImage(img, col * w + 2, row * h + 2, w - 4, h - 4, this);
+                        } catch (IOException e)
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        if (!overlap)
+        {
+            try
+            {
+                java.net.URL playerImageURL = GameView.class.getResource(_game.getPlayer().getImageName());
+                BufferedImage playerImg = ImageIO.read(playerImageURL);
+                g2.drawImage(playerImg, _game.getPlayer().GetCol() * w + 2, _game.getPlayer().GetRow() * h + 2, w - 4, h - 4, this);
+            } catch (IOException e)
+            {
+            }
+        }
+
+
+    }
+
+    public void keyPressed(KeyEvent evt)
+    {
+        int keyCode = evt.getKeyCode();
+        if (keyCode == KeyEvent.VK_LEFT)
+        {
+            _game.movePlayer(2);
+        } else if (keyCode == KeyEvent.VK_RIGHT)
+        {
+            _game.movePlayer(3);
+        } else if (keyCode == KeyEvent.VK_UP)
+        {
+            _game.movePlayer(0);
+        } else if (keyCode == KeyEvent.VK_DOWN)
+        {
+            _game.movePlayer(1);
+        }
+    }
+
+    public void keyReleased(KeyEvent evt)
+    {
+    }
+
+    public void keyTyped(KeyEvent evt)
+    {
+    }
+
+    @Override
+    public boolean isFocusTraversable()
+    {
+        return true;
+    }
+}

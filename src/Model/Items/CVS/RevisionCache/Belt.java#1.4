@@ -1,0 +1,46 @@
+/**
+ * Belt is a sub type of class Mis. One of the items a character can be equipped with during the game.
+ * @author Hamid
+ */
+package Model.Items;
+
+import Model.BodyParts.BodyPart;
+import Model.OutputConsole;
+
+public class Belt extends Mis
+{
+
+    /**
+     * Constructor method for Belt.
+     * 
+     * @param pName Name of the Belt
+     * @param pFileName Name of the image file name used for it
+     * @author Hamid
+     */
+    public Belt(String pName, String pFileName)
+    {
+        _fileName = pFileName;
+        _name = pName;
+        OutputConsole.GetOutputConsoleInstance().Write("A Belt was just created.");
+    }
+
+    public Belt()
+    {
+        _name = "Belt";
+    }
+
+    /**
+     * Validates the body part with the corresponding item
+     * 
+     * @param pBodyPart The body part to be validated.
+     * @return True if the body part is validated.
+     * @author Fahim
+     */
+    @Override
+    public boolean validateBodyPart(BodyPart pBodyPart)
+    {
+        //TODO put logic here        
+        return true;
+    }
+}
+
